@@ -35,9 +35,9 @@ def rules_game(message: telebot.types.Message):
             "\n     2. Единственное отличие данной игры от оригинала - с целью оптимизации игры и созлания оптимальных условий для партии, игровое поле уменьшино на 2 клетки, теперь его размер не 10 на 10 клеток, а 8 на 8."
             "\n     3. Кнопки на вашем игровом поле являются лишь наглядным представленим вашего поевого поля, ни одна кнопка на нем работать НЕ будет, кроме расстановки кораблей на игровом поле в начале игры."
             "\n     Некоторые клетки на поле, после взаимодействия с ними, будут иметь специальные символы:"
-            '\n             1. "{}" - таким символом будут обозначаться однопалубные корабли на игровом поле;'
-            '\n             2. "{ }" - таким символом будут обозначаться 2-х палубные корабли на игровом поле;'
-            '\n             2. "{ = }" - таким символом будут обозначаться 3-х палубные корабли на игровом поле;'
+            '\n             1. "[]" - таким символом будут обозначаться однопалубные корабли на игровом поле;'
+            '\n             2. "[ ]" - таким символом будут обозначаться 2-х палубные корабли на игровом поле;'
+            '\n             2. "[ = ]" - таким символом будут обозначаться 3-х палубные корабли на игровом поле;'
             '\n             4. "X" - этот символ обозначает, что вы или ваш противник попали в корабль противника;'
             '\n             5. "*" - этим символом будут обозначаться промохи по акватории противника.'
             '\n'
@@ -80,26 +80,88 @@ def prepare_game(message):
 @bot.callback_query_handler(func=lambda call: State_rast.rast_3plbship)
 def rast_3plbship(call):
     row, column = map(int, call.data.rsplit('|', 1)[1].split())
-    if " ] " not in str(buttons) and '=' in str(buttons):
-        if ("=" in buttons[row + 1][column] or "=" in buttons[row - 1][column] or "=" in buttons[row][column + 1] or "=" in buttons[row][column - 1]) and (" [ " in buttons[row + 2][column] or " [ " in buttons[row - 2][column] or " [ " in buttons[row][column + 2] or " [ " in buttons[row][column - 2]):
-            buttons[row][column] = " ] "
-            bot.delete_message(call.message.chat.id, call.message.message_id)
-            send_buttons(call.message.chat.id, 'user')
-    if "=" not in str(buttons):
-        if " [ " in buttons[row + 1][column] or " [ " in buttons[row - 1][column] or " [ " in buttons[row][column + 1] or " [ " in buttons[row][column - 1]:
+    if '=' not in str(buttons) and ' [ ' in str(buttons):
+        if row < 6 and column < 6:
             if " [ " in buttons[row - 1][column]:
+                buttons[row + 1][column] = ' ] '
+                buttons[row][column] = '='
                 not_zone.not_ships_zone += buttons[row - 2][column] + buttons[row - 2][column - 1] + buttons[row - 2][column + 1] + buttons[row - 1][column - 1] + buttons[row - 1][column + 1] + buttons[row][column - 1] + buttons[row][column + 1] + buttons[row + 1][column - 1] + buttons[row + 1][column + 1] + buttons[row + 2][column - 1] + buttons[row + 2][column] + buttons[row + 2][column + 1]
             if " [ " in buttons[row + 1][column]:
+                buttons[row - 1][column] = ' ] '
+                buttons[row][column] = '='
                 not_zone.not_ships_zone += buttons[row - 2][column] + buttons[row - 2][column - 1] + buttons[row - 2][column + 1] + buttons[row - 1][column - 1] + buttons[row - 1][column + 1] + buttons[row][column - 1] + buttons[row][column + 1] + buttons[row + 1][column - 1] + buttons[row + 1][column + 1] + buttons[row + 2][column - 1] + buttons[row + 2][column] + buttons[row + 2][column + 1]
             if " [ " in buttons[row][column - 1]:
+                buttons[row][column + 1] = ' ] '
+                buttons[row][column] = '='
                 not_zone.not_ships_zone += buttons[row][column - 2] + buttons[row - 1][column - 2] + buttons[row + 1][column - 2] + buttons[row - 1][column - 1] + buttons[row + 1][column - 1] + buttons[row - 1][column] + buttons[row + 1][column] + buttons[row - 1][column + 1] + buttons[row + 1][column + 1] + buttons[row + 1][column + 2] + buttons[row - 1][column + 2] + buttons[row][column + 2]
             if " [ " in buttons[row][column + 1]:
+                buttons[row][column - 1] = ' ] '
+                buttons[row][column] = '='
                 not_zone.not_ships_zone += buttons[row][column - 2] + buttons[row - 1][column - 2] + buttons[row + 1][column - 2] + buttons[row - 1][column - 1] + buttons[row + 1][column - 1] + buttons[row - 1][column] + buttons[row + 1][column] + buttons[row - 1][column + 1] + buttons[row + 1][column + 1] + buttons[row + 1][column + 2] + buttons[row - 1][column + 2] + buttons[row][column + 2]
-            buttons[row][column] = "="
             bot.delete_message(call.message.chat.id, call.message.message_id)
             send_buttons(call.message.chat.id, 'user')
+        if row == 6 and column < 6:
+            if " [ " in buttons[row - 1][column]:
+                buttons[row + 1][column] = ' ] '
+                buttons[row][column] = '='
+                not_zone.not_ships_zone += buttons[row - 2][column] + buttons[row - 2][column - 1] + buttons[row - 2][column + 1] + buttons[row - 1][column - 1] + buttons[row - 1][column + 1] + buttons[row][column - 1] + buttons[row][column + 1] + buttons[row + 1][column - 1] + buttons[row + 1][column + 1]
+            if " [ " in buttons[row + 1][column]:
+                buttons[row - 1][column] = ' ] '
+                buttons[row][column] = '='
+                not_zone.not_ships_zone += buttons[row - 1][column - 1] + buttons[row - 1][column + 1] + buttons[row][column - 1] + buttons[row][column + 1] + buttons[row + 1][column - 1] + buttons[row + 1][column + 1]
+            if " [ " in buttons[row][column - 1]:
+                buttons[row][column + 1] = ' ] '
+                buttons[row][column] = '='
+                not_zone.not_ships_zone += buttons[row][column - 2] + buttons[row - 1][column - 2] + buttons[row + 1][column - 2] + buttons[row - 1][column - 1] + buttons[row + 1][column - 1] + buttons[row - 1][column] + buttons[row + 1][column] + buttons[row - 1][column + 1] + buttons[row + 1][column + 1] + buttons[row + 1][column + 2] + buttons[row - 1][column + 2] + buttons[row][column + 2]
+            if " [ " in buttons[row][column + 1]:
+                buttons[row][column - 1] = ' ] '
+                buttons[row][column] = '='
+                not_zone.not_ships_zone += buttons[row][column - 2] + buttons[row - 1][column - 2] + buttons[row + 1][column - 2] + buttons[row - 1][column - 1] + buttons[row + 1][column - 1] + buttons[row - 1][column] + buttons[row + 1][column] + buttons[row - 1][column + 1] + buttons[row + 1][column + 1] + buttons[row + 1][column + 2] + buttons[row - 1][column + 2] + buttons[row][column + 2]
+            bot.delete_message(call.message.chat.id, call.message.message_id)
+            send_buttons(call.message.chat.id, 'user')
+        if row < 6 and column == 6:
+            if " [ " in buttons[row - 1][column]:
+                buttons[row + 1][column] = ' ] '
+                buttons[row][column] = '='
+                not_zone.not_ships_zone += buttons[row - 2][column] + buttons[row - 2][column - 1] + buttons[row - 2][column + 1] + buttons[row - 1][column - 1] + buttons[row - 1][column + 1] + buttons[row][column - 1] + buttons[row][column + 1] + buttons[row + 1][column - 1] + buttons[row + 1][column + 1] + buttons[row + 2][column - 1] + buttons[row + 2][column] + buttons[row + 2][column + 1]
+            if " [ " in buttons[row + 1][column]:
+                buttons[row - 1][column] = ' ] '
+                buttons[row][column] = '='
+                not_zone.not_ships_zone += buttons[row - 2][column] + buttons[row - 2][column - 1] + buttons[row - 2][column + 1] + buttons[row - 1][column - 1] + buttons[row - 1][column + 1] + buttons[row][column - 1] + buttons[row][column + 1] + buttons[row + 1][column - 1] + buttons[row + 1][column + 1] + buttons[row + 2][column - 1] + buttons[row + 2][column] + buttons[row + 2][column + 1]
+            if " [ " in buttons[row][column - 1]:
+                buttons[row][column + 1] = ' ] '
+                buttons[row][column] = '='
+                not_zone.not_ships_zone += buttons[row][column - 2] + buttons[row - 1][column - 2] + buttons[row + 1][column - 2] + buttons[row - 1][column - 1] + buttons[row + 1][column - 1] + buttons[row - 1][column] + buttons[row + 1][column] + buttons[row - 1][column + 1] + buttons[row + 1][column + 1]
+            if " [ " in buttons[row][column + 1]:
+                buttons[row][column - 1] = ' ] '
+                buttons[row][column] = '='
+                not_zone.not_ships_zone += buttons[row - 1][column - 1] + buttons[row + 1][column - 1] + buttons[row - 1][column] + buttons[row + 1][column] + buttons[row - 1][column + 1] + buttons[row + 1][column + 1]
+            bot.delete_message(call.message.chat.id, call.message.message_id)
+            send_buttons(call.message.chat.id, 'user')
+        if row < 7 and column == 7:
+            if " [ " in buttons[row - 1][column]:
+                buttons[row + 1][column] = ' ] '
+                buttons[row][column] = '='
+                not_zone.not_ships_zone += buttons[row - 2][column] + buttons[row - 2][column - 1] + buttons[row - 1][column - 1] + buttons[row][column - 1] + buttons[row + 1][column - 1] + buttons[row + 2][column - 1] + buttons[row + 2][column]
+            if " [ " in buttons[row + 1][column]:
+                buttons[row - 1][column] = ' ] '
+                buttons[row][column] = '='
+                not_zone.not_ships_zone += buttons[row - 2][column] + buttons[row - 2][column - 1] + buttons[row - 1][column - 1] + buttons[row][column - 1] + buttons[row + 1][column - 1] + buttons[row + 2][column - 1] + buttons[row + 2][column]
+            bot.delete_message(call.message.chat.id, call.message.message_id)
+            send_buttons(call.message.chat.id, 'user')
+        if row == 7 and column < 7:
+            if " [ " in buttons[row][column - 1]:
+                buttons[row][column + 1] = ' ] '
+                buttons[row][column] = '='
+                not_zone.not_ships_zone += buttons[row][column - 2] + buttons[row - 1][column - 2] + buttons[row - 1][column - 1] + buttons[row - 1][column] + buttons[row - 1][column + 1] + buttons[row - 1][column + 2] + buttons[row][column + 2]
+            if " [ " in buttons[row][column + 1]:
+                buttons[row][column - 1] = ' ] '
+                buttons[row][column] = '='
+                not_zone.not_ships_zone += buttons[row][column - 2] + buttons[row - 1][column - 2] + buttons[row - 1][column - 1] + buttons[row - 1][column] + buttons[row - 1][column + 1] + buttons[row - 1][column + 2] + buttons[row][column + 2]
+                bot.delete_message(call.message.chat.id, call.message.message_id)
+            send_buttons(call.message.chat.id, 'user')
     if " [ " not in str(buttons):
-        buttons[row][column] = " [ "
+        buttons[row][column] = ' [ '
         bot.delete_message(call.message.chat.id, call.message.message_id)
         send_buttons(call.message.chat.id, 'user')
     if (str(buttons)).count(' [ ') == 1 and (str(buttons)).count('=') == 1 and (str(buttons)).count(' ] ') == 1:
@@ -111,28 +173,69 @@ def rast_3plbship(call):
 @bot.callback_query_handler(func=lambda call: State_rast.rast_2plbship_1)
 def rast_2plbship_1(call):
     row, column = map(int, call.data.rsplit('|', 1)[1].split())
-    if (str(buttons)).count(']') == 10:
-        if (buttons[row][column] != ' [ ') and (buttons[row][column] != '=') and (buttons[row][column] != ' ] '):
-            if '[' in buttons[row + 1][column] or '[' in buttons[row - 1][column] or '[' in buttons[row][column + 1] or '[' in buttons[row][column - 1]:
+    if buttons[row][column] not in ships_sumbols:
+        if (str(buttons)).count(']') == 10 and (str(buttons)).count('[') == 11:
+            if (buttons[row][column] != ' [ ') and (buttons[row][column] != '=') and (buttons[row][column] != ' ] '):
+                if row < 6 and column < 6:
+                    if buttons[row][column] not in not_zone.not_ships_zone:
+                        if '[' in buttons[row + 1][column]:
+                            buttons[row][column] = ']'
+                            not_zone.not_ships_zone += buttons[row + 2][column - 1] + buttons[row + 2][column] + buttons[row + 2][column + 1] + buttons[row + 1][column - 1] + buttons[row][column + 1] + buttons[row][column - 1] + buttons[row - 1][column - 1] + buttons[row - 1][column] + buttons[row - 1][column + 1]
+                        if '[' in buttons[row - 1][column]:
+                            buttons[row][column] = ']'
+                            not_zone.not_ships_zone += buttons[row - 2][column - 1] + buttons[row - 2][column] + buttons[row - 2][column + 1] + buttons[row - 1][column - 1] + buttons[row][column + 1] + buttons[row][column - 1] + buttons[row + 1][column - 1] + buttons[row + 1][column] + buttons[row + 1][column + 1]
+                        if '[' in buttons[row][column + 1]:
+                            buttons[row][column] = ']'
+                            not_zone.not_ships_zone += buttons[row - 1][column + 2] + buttons[row][column + 2] + buttons[row + 1][column + 2] + buttons[row - 1][column + 1] + buttons[row + 1][column + 1] + buttons[row - 1][column] + buttons[row + 1][column] + buttons[row + 1][column - 1] + buttons[row][column - 1] + buttons[row + 1][column - 1]
+                        if '[' in buttons[row][column - 1]:
+                            buttons[row][column] = ']'
+                            not_zone.not_ships_zone += buttons[row - 1][column - 2] + buttons[row][column - 2] + buttons[row + 1][column - 2] + buttons[row - 1][column - 1] + buttons[row + 1][column - 1] + buttons[row - 1][column] + buttons[row + 1][column] + buttons[row + 1][column + 1] + buttons[row][column + 1] + buttons[row + 1][column + 1]
+                        bot.delete_message(call.message.chat.id, call.message.message_id)
+                        send_buttons(call.message.chat.id, 'user')
+                if row < 7 and column == 7:
+                    if buttons[row][column] not in not_zone.not_ships_zone:
+                        if '[' in buttons[row + 1][column]:
+                            buttons[row][column] = ']'
+                            not_zone.not_ships_zone += buttons[row + 2][column - 1] + buttons[row + 2][column] + buttons[row + 1][column - 1] + buttons[row][column - 1] + buttons[row - 1][column - 1] + buttons[row - 1][column]
+                        if '[' in buttons[row - 1][column]:
+                            buttons[row][column] = ']'
+                            not_zone.not_ships_zone += buttons[row - 2][column - 1] + buttons[row - 2][column] + buttons[row - 1][column - 1] + buttons[row][column - 1] + buttons[row + 1][column - 1] + buttons[row + 1][column]
+                        if '[' in buttons[row][column - 1]:
+                            buttons[row][column] = ']'
+                            not_zone.not_ships_zone += buttons[row - 1][column - 2] + buttons[row][column - 2] + buttons[row + 1][column - 2] + buttons[row - 1][column - 1] + buttons[row + 1][column - 1] + buttons[row - 1][column] + buttons[row + 1][column]
+                        bot.delete_message(call.message.chat.id, call.message.message_id)
+                        send_buttons(call.message.chat.id, 'user')
+                if row == 7 and column < 7:
+                    if buttons[row][column] not in not_zone.not_ships_zone:
+                        if '[' in buttons[row - 1][column]:
+                            buttons[row][column] = ']'
+                            not_zone.not_ships_zone += buttons[row - 2][column - 1] + buttons[row - 2][column] + buttons[row - 2][column + 1] + buttons[row - 1][column - 1] + buttons[row][column + 1] + buttons[row][column - 1]
+                        if '[' in buttons[row][column + 1]:
+                            buttons[row][column] = ']'
+                            not_zone.not_ships_zone += buttons[row - 1][column + 2] + buttons[row][column + 2] + buttons[row - 1][column + 1] + buttons[row - 1][column] + buttons[row][column - 1]
+                        if '[' in buttons[row][column - 1]:
+                            buttons[row][column] = ']'
+                            not_zone.not_ships_zone += buttons[row - 1][column + 2] + buttons[row][column + 2] + buttons[row - 1][column + 1] + buttons[row - 1][column] + buttons[row][column - 1]
+                        bot.delete_message(call.message.chat.id, call.message.message_id)
+                        send_buttons(call.message.chat.id, 'user')
+                if row == 7 and column == 7:
+                    if buttons[row][column] not in not_zone.not_ships_zone:
+                        if '[' in buttons[row - 1][column]:
+                            buttons[row][column] = ']'
+                            not_zone.not_ships_zone += buttons[row - 2][column - 1] + buttons[row - 2][column] + buttons[row - 1][column - 1] + buttons[row][column - 1]
+                        if '[' in buttons[row][column - 1]:
+                            buttons[row][column] = ']'
+                            not_zone.not_ships_zone += buttons[row - 1][column - 2] + buttons[row][column - 2] + buttons[row - 1][column - 1] + buttons[row - 1][column]
+                        bot.delete_message(call.message.chat.id, call.message.message_id)
+                        send_buttons(call.message.chat.id, 'user')
+
+        if (str(buttons)).count('[') == 10:
+            if (buttons[row][column] != '[') and (buttons[row][column] != '=') and (buttons[row][column] != ']'):
                 if buttons[row][column] not in not_zone.not_ships_zone:
-                    buttons[row][column] = ']'
-                    if '[' in buttons[row + 1][column]:
-                        not_zone.not_ships_zone += buttons[row + 2][column - 1] + buttons[row + 2][column] + buttons[row + 2][column + 1] + buttons[row + 1][column - 1] + buttons[row][column + 1] + buttons[row][column - 1] + buttons[row - 1][column - 1] + buttons[row - 1][column] + buttons[row - 1][column + 1]
-                    if '[' in buttons[row - 1][column]:
-                        not_zone.not_ships_zone += buttons[row - 2][column - 1] + buttons[row - 2][column] + buttons[row - 2][column + 1] + buttons[row - 1][column - 1] + buttons[row][column + 1] + buttons[row][column - 1] + buttons[row + 1][column - 1] + buttons[row + 1][column] + buttons[row + 1][column + 1]
-                    if '[' in buttons[row][column + 1]:
-                        not_zone.not_ships_zone += buttons[row - 1][column + 2] + buttons[row][column + 2] + buttons[row + 1][column + 2] + buttons[row - 1][column + 1] + buttons[row + 1][column + 1] + buttons[row - 1][column] + buttons[row + 1][column] + buttons[row + 1][column - 1] + buttons[row][column - 1]+ buttons[row + 1][column - 1]
-                    if '[' in buttons[row][column - 1]:
-                        not_zone.not_ships_zone += buttons[row - 1][column - 2] + buttons[row][column - 2] + buttons[row + 1][column - 2] + buttons[row - 1][column - 1] + buttons[row + 1][column - 1] + buttons[row - 1][column] + buttons[row + 1][column] + buttons[row + 1][column + 1] + buttons[row][column + 1]+ buttons[row + 1][column + 1]
+                    buttons[row][column] = '['
                     bot.delete_message(call.message.chat.id, call.message.message_id)
+                    bot.delete_message(call.message.chat.id, call.message.message_id - 2)
                     send_buttons(call.message.chat.id, 'user')
-    if (str(buttons)).count('[') == 10:
-        if (buttons[row][column] != '[') and (buttons[row][column] != '=') and (buttons[row][column] != ']'):
-            if buttons[row][column] not in not_zone.not_ships_zone:
-                buttons[row][column] = '['
-                bot.delete_message(call.message.chat.id, call.message.message_id)
-                bot.delete_message(call.message.chat.id, call.message.message_id - 2)
-                send_buttons(call.message.chat.id, 'user')
     if (str(buttons)).count('[') == 11 and (str(buttons)).count(']') == 11:
         State_rast.rast_2plbship_1 = False
         State_rast.rast_2plbship_2 = True
@@ -142,17 +245,56 @@ def rast_2plbship_2(call):
     row, column = map(int, call.data.rsplit('|', 1)[1].split())
     if (str(buttons)).count(']') == 11:
         if (buttons[row][column] != ' [ ') and (buttons[row][column] != '=') and (buttons[row][column] != ' ] '):
-            if '[' in buttons[row + 1][column] or '[' in buttons[row - 1][column] or '[' in buttons[row][column + 1] or '[' in buttons[row][column - 1]:
+            if row < 6 and column < 6:
                 if buttons[row][column] not in not_zone.not_ships_zone:
                     if '[' in buttons[row + 1][column]:
+                        buttons[row][column] = ']'
                         not_zone.not_ships_zone += buttons[row + 2][column - 1] + buttons[row + 2][column] + buttons[row + 2][column + 1] + buttons[row + 1][column - 1] + buttons[row][column + 1] + buttons[row][column - 1] + buttons[row - 1][column - 1] + buttons[row - 1][column] + buttons[row - 1][column + 1]
                     if '[' in buttons[row - 1][column]:
+                        buttons[row][column] = ']'
                         not_zone.not_ships_zone += buttons[row - 2][column - 1] + buttons[row - 2][column] + buttons[row - 2][column + 1] + buttons[row - 1][column - 1] + buttons[row][column + 1] + buttons[row][column - 1] + buttons[row + 1][column - 1] + buttons[row + 1][column] + buttons[row + 1][column + 1]
                     if '[' in buttons[row][column + 1]:
+                        buttons[row][column] = ']'
                         not_zone.not_ships_zone += buttons[row - 1][column + 2] + buttons[row][column + 2] + buttons[row + 1][column + 2] + buttons[row - 1][column + 1] + buttons[row + 1][column + 1] + buttons[row - 1][column] + buttons[row + 1][column] + buttons[row + 1][column - 1] + buttons[row][column - 1] + buttons[row + 1][column - 1]
                     if '[' in buttons[row][column - 1]:
+                        buttons[row][column] = ']'
                         not_zone.not_ships_zone += buttons[row - 1][column - 2] + buttons[row][column - 2] + buttons[row + 1][column - 2] + buttons[row - 1][column - 1] + buttons[row + 1][column - 1] + buttons[row - 1][column] + buttons[row + 1][column] + buttons[row + 1][column + 1] + buttons[row][column + 1] + buttons[row + 1][column + 1]
-                    buttons[row][column] = ']'
+                    bot.delete_message(call.message.chat.id, call.message.message_id)
+                    send_buttons(call.message.chat.id, 'user')
+            if row < 7 and column == 7:
+                if buttons[row][column] not in not_zone.not_ships_zone:
+                    if '[' in buttons[row + 1][column]:
+                        buttons[row][column] = ']'
+                        not_zone.not_ships_zone += buttons[row + 2][column - 1] + buttons[row + 2][column] + buttons[row + 1][column - 1] + buttons[row][column - 1] + buttons[row - 1][column - 1] + buttons[row - 1][column]
+                    if '[' in buttons[row - 1][column]:
+                        buttons[row][column] = ']'
+                        not_zone.not_ships_zone += buttons[row - 2][column - 1] + buttons[row - 2][column] + buttons[row - 1][column - 1] + buttons[row][column - 1] + buttons[row + 1][column - 1] + buttons[row + 1][column]
+                    if '[' in buttons[row][column - 1]:
+                        buttons[row][column] = ']'
+                        not_zone.not_ships_zone += buttons[row - 1][column - 2] + buttons[row][column - 2] + buttons[row + 1][column - 2] + buttons[row - 1][column - 1] + buttons[row + 1][column - 1] + buttons[row - 1][column] + buttons[row + 1][column]
+                    bot.delete_message(call.message.chat.id, call.message.message_id)
+                    send_buttons(call.message.chat.id, 'user')
+            if row == 7 and column < 7:
+                if buttons[row][column] not in not_zone.not_ships_zone:
+                    if '[' in buttons[row - 1][column]:
+                        buttons[row][column] = ']'
+                        not_zone.not_ships_zone += buttons[row - 2][column - 1] + buttons[row - 2][column] + buttons[row - 2][column + 1] + buttons[row - 1][column - 1] + buttons[row][column + 1] + buttons[row][column - 1]
+                    if '[' in buttons[row][column + 1]:
+                        buttons[row][column] = ']'
+                        not_zone.not_ships_zone += buttons[row - 1][column + 2] + buttons[row][column + 2] + buttons[row - 1][column + 1] + buttons[row - 1][column] + buttons[row][column - 1]
+                    if '[' in buttons[row][column - 1]:
+                        buttons[row][column] = ']'
+                        not_zone.not_ships_zone += buttons[row - 1][column + 2] + buttons[row][column + 2] + buttons[row - 1][column + 1] + buttons[row - 1][column] + buttons[row][column - 1]
+                    bot.delete_message(call.message.chat.id, call.message.message_id)
+                    send_buttons(call.message.chat.id, 'user')
+            if row == 7 and column == 7:
+                if buttons[row][column] not in not_zone.not_ships_zone:
+                    if '[' in buttons[row - 1][column]:
+                        buttons[row][column] = ']'
+                        not_zone.not_ships_zone += buttons[row - 2][column - 1] + buttons[row - 2][column] + buttons[row - 1][column - 1] + buttons[row][column - 1]
+                    if '[' in buttons[row][column - 1]:
+                        buttons[row][column] = ']'
+                        not_zone.not_ships_zone += buttons[row - 1][column - 2] + buttons[row][column - 2] + buttons[row - 1][column - 1] + buttons[row - 1][column]
                     bot.delete_message(call.message.chat.id, call.message.message_id)
                     send_buttons(call.message.chat.id, 'user')
     if (str(buttons)).count('[') == 11:
@@ -207,621 +349,651 @@ def game(call):
     if call.data.startswith('user'):
         pass
     else:
-        global rast_bot
-        if buttons_bot[row_bot][column_bot] != '*':
-            if rast_bot == '1':
-                if row_bot == 0 and column_bot == 0:
-                    buttons_bot[row_bot][column_bot] = 'X'
-                    buttons_bot[1][1] = '*'
-                    buttons_bot[0][1] = '*'
-                    buttons_bot[1][0] = '*'
-                if row_bot == 7 and column_bot == 7:
-                    buttons_bot[row_bot][column_bot] = 'X'
-                    buttons_bot[6][7] = ' * '
-                    buttons_bot[6][6] = ' * '
-                    buttons_bot[7][6] = ' * '
-                if row_bot == 7 and column_bot == 0:
-                    buttons_bot[row_bot][column_bot] = 'X'
-                    buttons_bot[6][0] = '*'
-                    buttons_bot[6][1] = '*'
-                    buttons_bot[7][1] = '*'
-                if row_bot == 3 and column_bot == 1:
-                    buttons_bot[row_bot][column_bot] = 'X'
-                    if buttons_bot[4][1] == 'X':
-                        buttons_bot[2][0] = '*'
-                        buttons_bot[2][1] = '*'
-                        buttons_bot[2][2] = '*'
-                        buttons_bot[3][0] = '*'
-                        buttons_bot[3][2] = '*'
-                        buttons_bot[4][0] = '*'
-                        buttons_bot[4][2] = '*'
-                        buttons_bot[5][0] = '*'
-                        buttons_bot[5][1] = '*'
-                        buttons_bot[5][2] = '*'
-                if row_bot == 4 and column_bot == 1:
-                    buttons_bot[row_bot][column_bot] = 'X'
-                    if buttons_bot[3][1] == 'X':
-                        buttons_bot[2][0] = '*'
-                        buttons_bot[2][1] = '*'
-                        buttons_bot[2][2] = '*'
-                        buttons_bot[3][0] = '*'
-                        buttons_bot[3][2] = '*'
-                        buttons_bot[4][0] = '*'
-                        buttons_bot[4][2] = '*'
-                        buttons_bot[5][0] = '*'
-                        buttons_bot[5][1] = '*'
-                        buttons_bot[5][2] = '*'
-                if row_bot == 4 and column_bot == 6:
-                    buttons_bot[row_bot][column_bot] = 'X'
-                    if buttons_bot[5][6] == 'X':
-                        buttons_bot[3][5] = '*'
-                        buttons_bot[3][6] = '*'
-                        buttons_bot[3][7] = '*'
-                        buttons_bot[4][5] = '*'
-                        buttons_bot[4][7] = '*'
-                        buttons_bot[5][5] = '*'
-                        buttons_bot[5][7] = '*'
-                        buttons_bot[6][5] = '*'
-                        buttons_bot[6][6] = '*'
-                        buttons_bot[6][7] = '*'
-                if row_bot == 5 and column_bot == 6:
-                    buttons_bot[row_bot][column_bot] = 'X'
-                    if buttons_bot[4][6] == 'X':
-                        buttons_bot[3][5] = '*'
-                        buttons_bot[3][6] = '*'
-                        buttons_bot[3][7] = '*'
-                        buttons_bot[4][5] = '*'
-                        buttons_bot[4][7] = '*'
-                        buttons_bot[5][5] = '*'
-                        buttons_bot[5][7] = '*'
-                        buttons_bot[6][5] = '*'
-                        buttons_bot[6][6] = '*'
-                        buttons_bot[6][7] = '*'
-                if row_bot == 6 and column_bot == 2:
-                    buttons_bot[row_bot][column_bot] = 'X'
-                    if buttons_bot[6][3] == 'X' and buttons_bot[6][4] == 'X':
-                        buttons_bot[5][1] = '*'
-                        buttons_bot[6][1] = '*'
-                        buttons_bot[7][1] = '*'
-                        buttons_bot[5][2] = '*'
-                        buttons_bot[7][2] = '*'
-                        buttons_bot[5][3] = '*'
-                        buttons_bot[7][3] = '*'
-                        buttons_bot[5][4] = '*'
-                        buttons_bot[7][4] = '*'
-                        buttons_bot[5][5] = '*'
-                        buttons_bot[6][5] = '*'
-                        buttons_bot[7][5] = '*'
-                if row_bot == 6 and column_bot == 3:
-                    buttons_bot[row_bot][column_bot] = 'X'
-                    if buttons_bot[6][2] == 'X' and buttons_bot[6][4] == 'X':
-                        buttons_bot[5][1] = '*'
-                        buttons_bot[6][1] = '*'
-                        buttons_bot[7][1] = '*'
-                        buttons_bot[5][2] = '*'
-                        buttons_bot[7][2] = '*'
-                        buttons_bot[5][3] = '*'
-                        buttons_bot[7][3] = '*'
-                        buttons_bot[5][4] = '*'
-                        buttons_bot[7][4] = '*'
-                        buttons_bot[5][5] = '*'
-                        buttons_bot[6][5] = '*'
-                        buttons_bot[7][5] = '*'
-                if row_bot == 6 and column_bot == 4:
-                    buttons_bot[row_bot][column_bot] = 'X'
-                    if buttons_bot[6][3] == 'X' and buttons_bot[6][2] == 'X':
-                        buttons_bot[5][1] = '*'
-                        buttons_bot[6][1] = '*'
-                        buttons_bot[7][1] = '*'
-                        buttons_bot[5][2] = '*'
-                        buttons_bot[7][2] = '*'
-                        buttons_bot[5][3] = '*'
-                        buttons_bot[7][3] = '*'
-                        buttons_bot[5][4] = '*'
-                        buttons_bot[7][4] = '*'
-                        buttons_bot[5][5] = '*'
-                        buttons_bot[6][5] = '*'
-                        buttons_bot[7][5] = '*'
-                if not(row_bot == 0 and column_bot == 0) and not(row_bot == 7 and column_bot == 7) and not(row_bot == 7 and column_bot == 0) and not(row_bot == 3 and column_bot == 1) and not(row_bot == 4 and column_bot == 1) and not(row_bot == 4 and column_bot == 6) and not(row_bot == 5 and column_bot == 6) and not(row_bot == 6 and column_bot == 2) and not(row_bot == 6 and column_bot == 3) and not(row_bot == 6 and column_bot == 4):
-                    buttons_bot[row_bot][column_bot] = '*'
-            if rast_bot == ('2'):
-                if row_bot == 1 and column_bot == 0:
-                    buttons_bot[1][0] = 'X'
-                    buttons_bot[0][0] = '*'
-                    buttons_bot[0][1] = '*'
-                    buttons_bot[1][1] = '*'
-                    buttons_bot[2][1] = '*'
-                    buttons_bot[2][0] = '*'
-                if row_bot == 2 and column_bot == 6:
-                    buttons_bot[2][6] = 'X'
-                    buttons_bot[1][5] = '*'
-                    buttons_bot[1][6] = '*'
-                    buttons_bot[1][7] = '*'
-                    buttons_bot[2][5] = '*'
-                    buttons_bot[2][7] = '*'
-                    buttons_bot[3][5] = '*'
-                    buttons_bot[3][6] = '*'
-                    buttons_bot[3][7] = '*'
-                if row_bot == 7 and column_bot == 3:
-                    buttons_bot[7][3] = 'X'
-                    buttons_bot[7][2] = '*'
-                    buttons_bot[6][2] = '*'
-                    buttons_bot[6][3] = '*'
-                    buttons_bot[6][4] = '*'
-                    buttons_bot[7][4] = '*'
-                if row_bot == 4 and column_bot == 1:
-                    buttons_bot[row_bot][column_bot] = 'X'
-                    if buttons_bot[5][1] == 'X':
-                        buttons_bot[3][0] = '*'
-                        buttons_bot[3][1] = '*'
-                        buttons_bot[3][2] = '*'
-                        buttons_bot[4][0] = '*'
-                        buttons_bot[4][2] = '*'
-                        buttons_bot[5][0] = '*'
-                        buttons_bot[5][2] = '*'
-                        buttons_bot[6][0] = '*'
-                        buttons_bot[6][1] = '*'
-                        buttons_bot[6][2] = '*'
-                if row_bot == 5 and column_bot == 1:
-                    buttons_bot[row_bot][column_bot] = 'X'
-                    if buttons_bot[4][1] == 'X':
-                        buttons_bot[3][0] = '*'
-                        buttons_bot[3][1] = '*'
-                        buttons_bot[3][2] = '*'
-                        buttons_bot[4][0] = '*'
-                        buttons_bot[4][2] = '*'
-                        buttons_bot[5][0] = '*'
-                        buttons_bot[5][2] = '*'
-                        buttons_bot[6][0] = '*'
-                        buttons_bot[6][1] = '*'
-                        buttons_bot[6][2] = '*'
-                if row_bot == 4 and column_bot == 5:
-                    buttons_bot[row_bot][column_bot] = 'X'
-                    if buttons_bot[5][5] == 'X':
-                        buttons_bot[3][4] = '*'
-                        buttons_bot[3][5] = '*'
-                        buttons_bot[3][6] = '*'
-                        buttons_bot[4][4] = '*'
-                        buttons_bot[4][6] = '*'
-                        buttons_bot[5][4] = '*'
-                        buttons_bot[5][6] = '*'
-                        buttons_bot[6][4] = '*'
-                        buttons_bot[6][5] = '*'
-                        buttons_bot[6][6] = '*'
-                if row_bot == 5 and column_bot == 5:
-                    buttons_bot[row_bot][column_bot] = 'X'
-                    if buttons_bot[4][5] == 'X':
-                        buttons_bot[3][4] = '*'
-                        buttons_bot[3][5] = '*'
-                        buttons_bot[3][6] = '*'
-                        buttons_bot[4][4] = '*'
-                        buttons_bot[4][6] = '*'
-                        buttons_bot[5][4] = '*'
-                        buttons_bot[5][6] = '*'
-                        buttons_bot[6][4] = '*'
-                        buttons_bot[6][5] = '*'
-                        buttons_bot[6][6] = '*'
-                if row_bot == 1 and column_bot == 3:
-                    buttons_bot[row_bot][column_bot] = 'X'
-                    if buttons_bot[2][3] == 'X' and buttons_bot[3][3] == 'X':
-                        buttons_bot[0][2] = '*'
-                        buttons_bot[0][3] = '*'
-                        buttons_bot[0][4] = '*'
-                        buttons_bot[1][2] = '*'
-                        buttons_bot[1][4] = '*'
-                        buttons_bot[2][2] = '*'
-                        buttons_bot[2][4] = '*'
-                        buttons_bot[3][2] = '*'
-                        buttons_bot[3][4] = '*'
-                        buttons_bot[4][2] = '*'
-                        buttons_bot[4][3] = '*'
-                        buttons_bot[4][4] = '*'
-                if row_bot == 2 and column_bot == 3:
-                    buttons_bot[row_bot][column_bot] = 'X'
-                    if buttons_bot[1][3] == 'X' and buttons_bot[3][3] == 'X':
-                        buttons_bot[0][2] = '*'
-                        buttons_bot[0][3] = '*'
-                        buttons_bot[0][4] = '*'
-                        buttons_bot[1][2] = '*'
-                        buttons_bot[1][4] = '*'
-                        buttons_bot[2][2] = '*'
-                        buttons_bot[2][4] = '*'
-                        buttons_bot[3][2] = '*'
-                        buttons_bot[3][4] = '*'
-                        buttons_bot[4][2] = '*'
-                        buttons_bot[4][3] = '*'
-                        buttons_bot[4][4] = '*'
-                if row_bot == 3 and column_bot == 3:
-                    buttons_bot[row_bot][column_bot] = 'X'
-                    if buttons_bot[2][3] == 'X' and buttons_bot[1][3] == 'X':
-                        buttons_bot[0][2] = '*'
-                        buttons_bot[0][3] = '*'
-                        buttons_bot[0][4] = '*'
-                        buttons_bot[1][2] = '*'
-                        buttons_bot[1][4] = '*'
-                        buttons_bot[2][2] = '*'
-                        buttons_bot[2][4] = '*'
-                        buttons_bot[3][2] = '*'
-                        buttons_bot[3][4] = '*'
-                        buttons_bot[4][2] = '*'
-                        buttons_bot[4][3] = '*'
-                        buttons_bot[4][4] = '*'
-                if not(row_bot == 1 and column_bot == 0) and not(row_bot == 2 and column_bot == 6) and not(row_bot == 7 and column_bot == 3) and not(row_bot == 4 and column_bot == 1) and not(row_bot == 5 and column_bot == 1) and not(row_bot == 4 and column_bot == 5) and not(row_bot == 5 and column_bot == 5) and not(row_bot == 1 and column_bot == 3) and not(row_bot == 2 and column_bot == 3) and not(row_bot == 3 and column_bot == 3):
-                    buttons_bot[row_bot][column_bot] = '*'
-            if rast_bot == '3':
-                if row_bot == 2 and column_bot == 0:
-                    buttons_bot[2][0] = 'X'
-                    buttons_bot[1][0] = '*'
-                    buttons_bot[1][1] = '*'
-                    buttons_bot[2][1] = '*'
-                    buttons_bot[3][0] = '*'
-                    buttons_bot[3][1] = '*'
-                if row_bot == 1 and column_bot == 6:
-                    buttons_bot[1][6] = 'X'
-                    buttons_bot[0][5] = '*'
-                    buttons_bot[0][6] = '*'
-                    buttons_bot[0][7] = '*'
-                    buttons_bot[1][5] = '*'
-                    buttons_bot[1][7] = '*'
-                    buttons_bot[2][5] = '*'
-                    buttons_bot[2][6] = '*'
-                    buttons_bot[2][7] = '*'
-                if row_bot == 3 and column_bot == 7:
-                    buttons_bot[3][7] = 'X'
-                    buttons_bot[2][7] = '*'
-                    buttons_bot[2][6] = '*'
-                    buttons_bot[3][6] = '*'
-                    buttons_bot[4][6] = '*'
-                    buttons_bot[4][7] = '*'
-                if row_bot == 2 and column_bot == 2:
-                    buttons_bot[2][2] = 'X'
-                    if buttons_bot[3][2] == 'X':
-                        buttons_bot[1][1] = '*'
-                        buttons_bot[1][2] = '*'
-                        buttons_bot[1][3] = '*'
-                        buttons_bot[2][1] = '*'
-                        buttons_bot[2][3] = '*'
-                        buttons_bot[3][1] = '*'
-                        buttons_bot[3][3] = '*'
-                        buttons_bot[4][1] = '*'
-                        buttons_bot[4][2] = '*'
-                        buttons_bot[4][3] = '*'
-                if row_bot == 3 and column_bot == 2:
-                    buttons_bot[3][2] = 'X'
-                    if buttons_bot[2][2] == 'X':
-                        buttons_bot[1][1] = '*'
-                        buttons_bot[1][2] = '*'
-                        buttons_bot[1][3] = '*'
-                        buttons_bot[2][1] = '*'
-                        buttons_bot[2][3] = '*'
-                        buttons_bot[3][1] = '*'
-                        buttons_bot[3][3] = '*'
-                        buttons_bot[4][1] = '*'
-                        buttons_bot[4][2] = '*'
-                        buttons_bot[4][3] = '*'
-                if row_bot == 4 and column_bot == 4:
-                    buttons_bot[4][4] = 'X'
-                    if buttons_bot[5][4] == 'X':
-                        buttons_bot[3][3] = '*'
-                        buttons_bot[3][4] = '*'
-                        buttons_bot[3][5] = '*'
-                        buttons_bot[4][3] = '*'
-                        buttons_bot[4][5] = '*'
-                        buttons_bot[5][3] = '*'
-                        buttons_bot[5][5] = '*'
-                        buttons_bot[6][3] = '*'
-                        buttons_bot[6][4] = '*'
-                        buttons_bot[6][5] = '*'
-                if row_bot == 5 and column_bot == 4:
-                    buttons_bot[5][4] = 'X'
-                    if buttons_bot[4][4] == 'X':
-                        buttons_bot[3][3] = '*'
-                        buttons_bot[3][4] = '*'
-                        buttons_bot[3][5] = '*'
-                        buttons_bot[4][3] = '*'
-                        buttons_bot[4][5] = '*'
-                        buttons_bot[5][3] = '*'
-                        buttons_bot[5][5] = '*'
-                        buttons_bot[6][3] = '*'
-                        buttons_bot[6][4] = '*'
-                        buttons_bot[6][5] = '*'
-                if row_bot == 5 and column_bot == 1:
-                    buttons_bot[5][1] = 'X'
-                    if buttons_bot[6][1] == 'X' and buttons_bot[7][1] == 'X':
-                        buttons_bot[4][0] = '*'
-                        buttons_bot[4][1] = '*'
-                        buttons_bot[4][2] = '*'
-                        buttons_bot[5][0] = '*'
-                        buttons_bot[5][2] = '*'
-                        buttons_bot[6][0] = '*'
-                        buttons_bot[7][0] = '*'
-                        buttons_bot[7][2] = '*'
-                if row_bot == 6 and column_bot == 1:
-                    buttons_bot[6][1] = 'X'
-                    if buttons_bot[5][1] == 'X' and buttons_bot[7][1] == 'X':
-                        buttons_bot[4][0] = '*'
-                        buttons_bot[4][1] = '*'
-                        buttons_bot[4][2] = '*'
-                        buttons_bot[5][0] = '*'
-                        buttons_bot[5][2] = '*'
-                        buttons_bot[6][0] = '*'
-                        buttons_bot[7][0] = '*'
-                        buttons_bot[7][2] = '*'
-                if row_bot == 7 and column_bot == 1:
-                    buttons_bot[7][1] = 'X'
-                    if buttons_bot[5][1] == 'X' and buttons_bot[6][1] == 'X':
-                        buttons_bot[4][0] = '*'
-                        buttons_bot[4][1] = '*'
-                        buttons_bot[4][2] = '*'
-                        buttons_bot[5][0] = '*'
-                        buttons_bot[5][2] = '*'
-                        buttons_bot[6][0] = '*'
-                        buttons_bot[6][2] = '*'
-                        buttons_bot[7][0] = '*'
-                        buttons_bot[7][2] = '*'
-                if not(row_bot == 2 and column_bot == 0) and not(row_bot == 1 and column_bot == 6) and not(row_bot == 3 and column_bot == 7) and not(row_bot == 2 and column_bot == 2) and not(row_bot == 3 and column_bot == 2) and not(row_bot == 4 and column_bot == 4) and not(row_bot == 5 and column_bot == 4) and not(row_bot == 5 and column_bot == 1) and not(row_bot == 6 and column_bot == 1) and not(row_bot == 7 and column_bot == 1):
-                    buttons_bot[row_bot][column_bot] = '*'
-            if rast_bot == '4':
-                if row_bot == 1 and column_bot == 1:
-                    buttons_bot[1][1] = 'X'
-                    buttons_bot[0][0] = '*'
-                    buttons_bot[0][1] = '*'
-                    buttons_bot[0][2] = '*'
-                    buttons_bot[1][0] = '*'
-                    buttons_bot[1][2] = '*'
+        attak(row_bot, column_bot)
+        gaming()
+
+        if (str(buttons)).count('X') == 10:
+            bot.send_message(call.message.chat.id, 'Игра окончена. Вы проиграли, это была хорошая игра, а вы достойнам противником! Не растраивайтесь и поробуйте еще раз, в следующий раз вы победите.')
+        if (str(buttons_bot)).count('X') == 10:
+            bot.send_message(call.message.chat.id,'Игра окончена. Вы победили, так держать!')
+
+        else:
+            bot.delete_message(call.message.chat.id, call.message.message_id)
+            bot.delete_message(call.message.chat.id, call.message.message_id - 1)
+            send_buttons(call.message.chat.id, 'user')
+            bot_send_buttons(call.message.chat.id)
+
+def attak(row_bot, column_bot):
+    global rast_bot
+    if buttons_bot[row_bot][column_bot] != '*':
+        if rast_bot == '1':
+            if row_bot == 0 and column_bot == 0:
+                buttons_bot[row_bot][column_bot] = 'X'
+                buttons_bot[1][1] = '*'
+                buttons_bot[0][1] = '*'
+                buttons_bot[1][0] = '*'
+            if row_bot == 7 and column_bot == 7:
+                buttons_bot[row_bot][column_bot] = 'X'
+                buttons_bot[6][7] = ' * '
+                buttons_bot[6][6] = ' * '
+                buttons_bot[7][6] = ' * '
+            if row_bot == 7 and column_bot == 0:
+                buttons_bot[row_bot][column_bot] = 'X'
+                buttons_bot[6][0] = '*'
+                buttons_bot[6][1] = '*'
+                buttons_bot[7][1] = '*'
+            if row_bot == 3 and column_bot == 1:
+                buttons_bot[row_bot][column_bot] = 'X'
+                if buttons_bot[4][1] == 'X':
                     buttons_bot[2][0] = '*'
                     buttons_bot[2][1] = '*'
                     buttons_bot[2][2] = '*'
-                if row_bot == 5 and column_bot == 1:
-                    buttons_bot[5][1] = 'X'
-                    buttons_bot[4][0] = '*'
-                    buttons_bot[4][1] = '*'
-                    buttons_bot[4][2] = '*'
-                    buttons_bot[5][0] = '*'
-                    buttons_bot[5][2] = '*'
-                    buttons_bot[6][0] = '*'
-                    buttons_bot[6][1] = '*'
-                    buttons_bot[6][2] = '*'
-                if row_bot == 7 and column_bot == 2:
-                    buttons_bot[7][2] = 'X'
-                    buttons_bot[7][1] = '*'
-                    buttons_bot[6][1] = '*'
-                    buttons_bot[6][2] = '*'
-                    buttons_bot[6][3] = '*'
-                    buttons_bot[7][3] = '*'
-                if row_bot == 6 and column_bot == 4:
-                    buttons_bot[6][4] = 'X'
-                    if buttons_bot[6][5] == 'X':
-                        buttons_bot[5][3] = '*'
-                        buttons_bot[5][4] = '*'
-                        buttons_bot[5][5] = '*'
-                        buttons_bot[5][6] = '*'
-                        buttons_bot[6][3] = '*'
-                        buttons_bot[6][6] = '*'
-                        buttons_bot[7][3] = '*'
-                        buttons_bot[7][4] = '*'
-                        buttons_bot[7][5] = '*'
-                        buttons_bot[7][6] = '*'
-                if row_bot == 6 and column_bot == 5:
-                    buttons_bot[6][5] = 'X'
-                    if buttons_bot[6][4] == 'X':
-                        buttons_bot[5][3] = '*'
-                        buttons_bot[5][4] = '*'
-                        buttons_bot[5][5] = '*'
-                        buttons_bot[5][6] = '*'
-                        buttons_bot[6][3] = '*'
-                        buttons_bot[6][6] = '*'
-                        buttons_bot[7][3] = '*'
-                        buttons_bot[7][4] = '*'
-                        buttons_bot[7][5] = '*'
-                        buttons_bot[7][6] = '*'
-                if row_bot == 1 and column_bot == 6:
-                    buttons_bot[1][6] = 'X'
-                    if buttons_bot[2][6] == 'X':
-                        buttons_bot[0][5] = '*'
-                        buttons_bot[0][6] = '*'
-                        buttons_bot[0][7] = '*'
-                        buttons_bot[1][5] = '*'
-                        buttons_bot[1][7] = '*'
-                        buttons_bot[2][5] = '*'
-                        buttons_bot[2][7] = '*'
-                        buttons_bot[3][5] = '*'
-                        buttons_bot[3][6] = '*'
-                        buttons_bot[3][7] = '*'
-                if row_bot == 2 and column_bot == 6:
-                    buttons_bot[2][6] = 'X'
-                    if buttons_bot[1][6] == 'X':
-                        buttons_bot[0][5] = '*'
-                        buttons_bot[0][6] = '*'
-                        buttons_bot[0][7] = '*'
-                        buttons_bot[1][5] = '*'
-                        buttons_bot[1][7] = '*'
-                        buttons_bot[2][5] = '*'
-                        buttons_bot[2][7] = '*'
-                        buttons_bot[3][5] = '*'
-                        buttons_bot[3][6] = '*'
-                        buttons_bot[3][7] = '*'
-                if row_bot == 2 and column_bot == 3:
-                    buttons_bot[2][3] = 'X'
-                    if buttons_bot[3][3] == 'X' and buttons_bot[4][3] == 'X':
-                        buttons_bot[1][2] = '*'
-                        buttons_bot[1][3] = '*'
-                        buttons_bot[1][4] = '*'
-                        buttons_bot[2][2] = '*'
-                        buttons_bot[2][4] = '*'
-                        buttons_bot[3][2] = '*'
-                        buttons_bot[3][4] = '*'
-                        buttons_bot[4][2] = '*'
-                        buttons_bot[4][4] = '*'
-                        buttons_bot[5][2] = '*'
-                        buttons_bot[5][3] = '*'
-                        buttons_bot[5][4] = '*'
-                if row_bot == 3 and column_bot == 3:
-                    buttons_bot[3][3] = 'X'
-                    if buttons_bot[2][3] == 'X' and buttons_bot[4][3] == 'X':
-                        buttons_bot[1][2] = '*'
-                        buttons_bot[1][3] = '*'
-                        buttons_bot[1][4] = '*'
-                        buttons_bot[2][2] = '*'
-                        buttons_bot[2][4] = '*'
-                        buttons_bot[3][2] = '*'
-                        buttons_bot[3][4] = '*'
-                        buttons_bot[4][2] = '*'
-                        buttons_bot[4][4] = '*'
-                        buttons_bot[5][2] = '*'
-                        buttons_bot[5][3] = '*'
-                        buttons_bot[5][4] = '*'
-                if row_bot == 4 and column_bot == 3:
-                    buttons_bot[4][3] = 'X'
-                    if buttons_bot[3][3] == 'X' and buttons_bot[2][3] == 'X':
-                        buttons_bot[1][2] = '*'
-                        buttons_bot[1][3] = '*'
-                        buttons_bot[1][4] = '*'
-                        buttons_bot[2][2] = '*'
-                        buttons_bot[2][4] = '*'
-                        buttons_bot[3][2] = '*'
-                        buttons_bot[3][4] = '*'
-                        buttons_bot[4][2] = '*'
-                        buttons_bot[4][4] = '*'
-                        buttons_bot[5][2] = '*'
-                        buttons_bot[5][3] = '*'
-                        buttons_bot[5][4] = '*'
-                if not(row_bot == 1 and column_bot == 1) and not(row_bot == 5 and column_bot == 1) and not(row_bot == 7 and column_bot == 2) and not(row_bot == 6 and column_bot == 4) and not(row_bot == 6 and column_bot == 5) and not(row_bot == 1 and column_bot == 6) and not(row_bot == 2 and column_bot == 6) and not(row_bot == 2 and column_bot == 3) and not(row_bot == 3 and column_bot == 3) and not(row_bot == 4 and column_bot == 3):
-                    buttons_bot[row_bot][column_bot] = '*'
-            if rast_bot == '5':
-                if row_bot == 1 and column_bot == 6:
-                    buttons_bot[1][6] = 'X'
-                    buttons_bot[0][5] = '*'
-                    buttons_bot[0][6] = '*'
-                    buttons_bot[0][7] = '*'
-                    buttons_bot[1][5] = '*'
-                    buttons_bot[1][7] = '*'
-                    buttons_bot[2][5] = '*'
-                    buttons_bot[2][6] = '*'
-                    buttons_bot[2][7] = '*'
-                if row_bot == 4 and column_bot == 1:
-                    buttons_bot[4][1] = 'X'
                     buttons_bot[3][0] = '*'
-                    buttons_bot[3][1] = '*'
                     buttons_bot[3][2] = '*'
                     buttons_bot[4][0] = '*'
                     buttons_bot[4][2] = '*'
                     buttons_bot[5][0] = '*'
                     buttons_bot[5][1] = '*'
                     buttons_bot[5][2] = '*'
-                if row_bot == 4 and column_bot == 3:
-                    buttons_bot[4][3] = 'X'
+            if row_bot == 4 and column_bot == 1:
+                buttons_bot[row_bot][column_bot] = 'X'
+                if buttons_bot[3][1] == 'X':
+                    buttons_bot[2][0] = '*'
+                    buttons_bot[2][1] = '*'
+                    buttons_bot[2][2] = '*'
+                    buttons_bot[3][0] = '*'
                     buttons_bot[3][2] = '*'
+                    buttons_bot[4][0] = '*'
+                    buttons_bot[4][2] = '*'
+                    buttons_bot[5][0] = '*'
+                    buttons_bot[5][1] = '*'
+                    buttons_bot[5][2] = '*'
+            if row_bot == 4 and column_bot == 6:
+                buttons_bot[row_bot][column_bot] = 'X'
+                if buttons_bot[5][6] == 'X':
+                    buttons_bot[3][5] = '*'
+                    buttons_bot[3][6] = '*'
+                    buttons_bot[3][7] = '*'
+                    buttons_bot[4][5] = '*'
+                    buttons_bot[4][7] = '*'
+                    buttons_bot[5][5] = '*'
+                    buttons_bot[5][7] = '*'
+                    buttons_bot[6][5] = '*'
+                    buttons_bot[6][6] = '*'
+                    buttons_bot[6][7] = '*'
+            if row_bot == 5 and column_bot == 6:
+                buttons_bot[row_bot][column_bot] = 'X'
+                if buttons_bot[4][6] == 'X':
+                    buttons_bot[3][5] = '*'
+                    buttons_bot[3][6] = '*'
+                    buttons_bot[3][7] = '*'
+                    buttons_bot[4][5] = '*'
+                    buttons_bot[4][7] = '*'
+                    buttons_bot[5][5] = '*'
+                    buttons_bot[5][7] = '*'
+                    buttons_bot[6][5] = '*'
+                    buttons_bot[6][6] = '*'
+                    buttons_bot[6][7] = '*'
+            if row_bot == 6 and column_bot == 2:
+                buttons_bot[row_bot][column_bot] = 'X'
+                if buttons_bot[6][3] == 'X' and buttons_bot[6][4] == 'X':
+                    buttons_bot[5][1] = '*'
+                    buttons_bot[6][1] = '*'
+                    buttons_bot[7][1] = '*'
+                    buttons_bot[5][2] = '*'
+                    buttons_bot[7][2] = '*'
+                    buttons_bot[5][3] = '*'
+                    buttons_bot[7][3] = '*'
+                    buttons_bot[5][4] = '*'
+                    buttons_bot[7][4] = '*'
+                    buttons_bot[5][5] = '*'
+                    buttons_bot[6][5] = '*'
+                    buttons_bot[7][5] = '*'
+            if row_bot == 6 and column_bot == 3:
+                buttons_bot[row_bot][column_bot] = 'X'
+                if buttons_bot[6][2] == 'X' and buttons_bot[6][4] == 'X':
+                    buttons_bot[5][1] = '*'
+                    buttons_bot[6][1] = '*'
+                    buttons_bot[7][1] = '*'
+                    buttons_bot[5][2] = '*'
+                    buttons_bot[7][2] = '*'
+                    buttons_bot[5][3] = '*'
+                    buttons_bot[7][3] = '*'
+                    buttons_bot[5][4] = '*'
+                    buttons_bot[7][4] = '*'
+                    buttons_bot[5][5] = '*'
+                    buttons_bot[6][5] = '*'
+                    buttons_bot[7][5] = '*'
+            if row_bot == 6 and column_bot == 4:
+                buttons_bot[row_bot][column_bot] = 'X'
+                if buttons_bot[6][3] == 'X' and buttons_bot[6][2] == 'X':
+                    buttons_bot[5][1] = '*'
+                    buttons_bot[6][1] = '*'
+                    buttons_bot[7][1] = '*'
+                    buttons_bot[5][2] = '*'
+                    buttons_bot[7][2] = '*'
+                    buttons_bot[5][3] = '*'
+                    buttons_bot[7][3] = '*'
+                    buttons_bot[5][4] = '*'
+                    buttons_bot[7][4] = '*'
+                    buttons_bot[5][5] = '*'
+                    buttons_bot[6][5] = '*'
+                    buttons_bot[7][5] = '*'
+            if not (row_bot == 0 and column_bot == 0) and not (row_bot == 7 and column_bot == 7) and not (
+                    row_bot == 7 and column_bot == 0) and not (row_bot == 3 and column_bot == 1) and not (
+                    row_bot == 4 and column_bot == 1) and not (row_bot == 4 and column_bot == 6) and not (
+                    row_bot == 5 and column_bot == 6) and not (row_bot == 6 and column_bot == 2) and not (
+                    row_bot == 6 and column_bot == 3) and not (row_bot == 6 and column_bot == 4):
+                buttons_bot[row_bot][column_bot] = '*'
+        if rast_bot == ('2'):
+            if row_bot == 1 and column_bot == 0:
+                buttons_bot[1][0] = 'X'
+                buttons_bot[0][0] = '*'
+                buttons_bot[0][1] = '*'
+                buttons_bot[1][1] = '*'
+                buttons_bot[2][1] = '*'
+                buttons_bot[2][0] = '*'
+            if row_bot == 2 and column_bot == 6:
+                buttons_bot[2][6] = 'X'
+                buttons_bot[1][5] = '*'
+                buttons_bot[1][6] = '*'
+                buttons_bot[1][7] = '*'
+                buttons_bot[2][5] = '*'
+                buttons_bot[2][7] = '*'
+                buttons_bot[3][5] = '*'
+                buttons_bot[3][6] = '*'
+                buttons_bot[3][7] = '*'
+            if row_bot == 7 and column_bot == 3:
+                buttons_bot[7][3] = 'X'
+                buttons_bot[7][2] = '*'
+                buttons_bot[6][2] = '*'
+                buttons_bot[6][3] = '*'
+                buttons_bot[6][4] = '*'
+                buttons_bot[7][4] = '*'
+            if row_bot == 4 and column_bot == 1:
+                buttons_bot[row_bot][column_bot] = 'X'
+                if buttons_bot[5][1] == 'X':
+                    buttons_bot[3][0] = '*'
+                    buttons_bot[3][1] = '*'
+                    buttons_bot[3][2] = '*'
+                    buttons_bot[4][0] = '*'
+                    buttons_bot[4][2] = '*'
+                    buttons_bot[5][0] = '*'
+                    buttons_bot[5][2] = '*'
+                    buttons_bot[6][0] = '*'
+                    buttons_bot[6][1] = '*'
+                    buttons_bot[6][2] = '*'
+            if row_bot == 5 and column_bot == 1:
+                buttons_bot[row_bot][column_bot] = 'X'
+                if buttons_bot[4][1] == 'X':
+                    buttons_bot[3][0] = '*'
+                    buttons_bot[3][1] = '*'
+                    buttons_bot[3][2] = '*'
+                    buttons_bot[4][0] = '*'
+                    buttons_bot[4][2] = '*'
+                    buttons_bot[5][0] = '*'
+                    buttons_bot[5][2] = '*'
+                    buttons_bot[6][0] = '*'
+                    buttons_bot[6][1] = '*'
+                    buttons_bot[6][2] = '*'
+            if row_bot == 4 and column_bot == 5:
+                buttons_bot[row_bot][column_bot] = 'X'
+                if buttons_bot[5][5] == 'X':
+                    buttons_bot[3][4] = '*'
+                    buttons_bot[3][5] = '*'
+                    buttons_bot[3][6] = '*'
+                    buttons_bot[4][4] = '*'
+                    buttons_bot[4][6] = '*'
+                    buttons_bot[5][4] = '*'
+                    buttons_bot[5][6] = '*'
+                    buttons_bot[6][4] = '*'
+                    buttons_bot[6][5] = '*'
+                    buttons_bot[6][6] = '*'
+            if row_bot == 5 and column_bot == 5:
+                buttons_bot[row_bot][column_bot] = 'X'
+                if buttons_bot[4][5] == 'X':
+                    buttons_bot[3][4] = '*'
+                    buttons_bot[3][5] = '*'
+                    buttons_bot[3][6] = '*'
+                    buttons_bot[4][4] = '*'
+                    buttons_bot[4][6] = '*'
+                    buttons_bot[5][4] = '*'
+                    buttons_bot[5][6] = '*'
+                    buttons_bot[6][4] = '*'
+                    buttons_bot[6][5] = '*'
+                    buttons_bot[6][6] = '*'
+            if row_bot == 1 and column_bot == 3:
+                buttons_bot[row_bot][column_bot] = 'X'
+                if buttons_bot[2][3] == 'X' and buttons_bot[3][3] == 'X':
+                    buttons_bot[0][2] = '*'
+                    buttons_bot[0][3] = '*'
+                    buttons_bot[0][4] = '*'
+                    buttons_bot[1][2] = '*'
+                    buttons_bot[1][4] = '*'
+                    buttons_bot[2][2] = '*'
+                    buttons_bot[2][4] = '*'
+                    buttons_bot[3][2] = '*'
+                    buttons_bot[3][4] = '*'
+                    buttons_bot[4][2] = '*'
+                    buttons_bot[4][3] = '*'
+                    buttons_bot[4][4] = '*'
+            if row_bot == 2 and column_bot == 3:
+                buttons_bot[row_bot][column_bot] = 'X'
+                if buttons_bot[1][3] == 'X' and buttons_bot[3][3] == 'X':
+                    buttons_bot[0][2] = '*'
+                    buttons_bot[0][3] = '*'
+                    buttons_bot[0][4] = '*'
+                    buttons_bot[1][2] = '*'
+                    buttons_bot[1][4] = '*'
+                    buttons_bot[2][2] = '*'
+                    buttons_bot[2][4] = '*'
+                    buttons_bot[3][2] = '*'
+                    buttons_bot[3][4] = '*'
+                    buttons_bot[4][2] = '*'
+                    buttons_bot[4][3] = '*'
+                    buttons_bot[4][4] = '*'
+            if row_bot == 3 and column_bot == 3:
+                buttons_bot[row_bot][column_bot] = 'X'
+                if buttons_bot[2][3] == 'X' and buttons_bot[1][3] == 'X':
+                    buttons_bot[0][2] = '*'
+                    buttons_bot[0][3] = '*'
+                    buttons_bot[0][4] = '*'
+                    buttons_bot[1][2] = '*'
+                    buttons_bot[1][4] = '*'
+                    buttons_bot[2][2] = '*'
+                    buttons_bot[2][4] = '*'
+                    buttons_bot[3][2] = '*'
+                    buttons_bot[3][4] = '*'
+                    buttons_bot[4][2] = '*'
+                    buttons_bot[4][3] = '*'
+                    buttons_bot[4][4] = '*'
+            if not (row_bot == 1 and column_bot == 0) and not (row_bot == 2 and column_bot == 6) and not (
+                    row_bot == 7 and column_bot == 3) and not (row_bot == 4 and column_bot == 1) and not (
+                    row_bot == 5 and column_bot == 1) and not (row_bot == 4 and column_bot == 5) and not (
+                    row_bot == 5 and column_bot == 5) and not (row_bot == 1 and column_bot == 3) and not (
+                    row_bot == 2 and column_bot == 3) and not (row_bot == 3 and column_bot == 3):
+                buttons_bot[row_bot][column_bot] = '*'
+        if rast_bot == '3':
+            if row_bot == 2 and column_bot == 0:
+                buttons_bot[2][0] = 'X'
+                buttons_bot[1][0] = '*'
+                buttons_bot[1][1] = '*'
+                buttons_bot[2][1] = '*'
+                buttons_bot[3][0] = '*'
+                buttons_bot[3][1] = '*'
+            if row_bot == 1 and column_bot == 6:
+                buttons_bot[1][6] = 'X'
+                buttons_bot[0][5] = '*'
+                buttons_bot[0][6] = '*'
+                buttons_bot[0][7] = '*'
+                buttons_bot[1][5] = '*'
+                buttons_bot[1][7] = '*'
+                buttons_bot[2][5] = '*'
+                buttons_bot[2][6] = '*'
+                buttons_bot[2][7] = '*'
+            if row_bot == 3 and column_bot == 7:
+                buttons_bot[3][7] = 'X'
+                buttons_bot[2][7] = '*'
+                buttons_bot[2][6] = '*'
+                buttons_bot[3][6] = '*'
+                buttons_bot[4][6] = '*'
+                buttons_bot[4][7] = '*'
+            if row_bot == 2 and column_bot == 2:
+                buttons_bot[2][2] = 'X'
+                if buttons_bot[3][2] == 'X':
+                    buttons_bot[1][1] = '*'
+                    buttons_bot[1][2] = '*'
+                    buttons_bot[1][3] = '*'
+                    buttons_bot[2][1] = '*'
+                    buttons_bot[2][3] = '*'
+                    buttons_bot[3][1] = '*'
                     buttons_bot[3][3] = '*'
+                    buttons_bot[4][1] = '*'
+                    buttons_bot[4][2] = '*'
+                    buttons_bot[4][3] = '*'
+            if row_bot == 3 and column_bot == 2:
+                buttons_bot[3][2] = 'X'
+                if buttons_bot[2][2] == 'X':
+                    buttons_bot[1][1] = '*'
+                    buttons_bot[1][2] = '*'
+                    buttons_bot[1][3] = '*'
+                    buttons_bot[2][1] = '*'
+                    buttons_bot[2][3] = '*'
+                    buttons_bot[3][1] = '*'
+                    buttons_bot[3][3] = '*'
+                    buttons_bot[4][1] = '*'
+                    buttons_bot[4][2] = '*'
+                    buttons_bot[4][3] = '*'
+            if row_bot == 4 and column_bot == 4:
+                buttons_bot[4][4] = 'X'
+                if buttons_bot[5][4] == 'X':
+                    buttons_bot[3][3] = '*'
+                    buttons_bot[3][4] = '*'
+                    buttons_bot[3][5] = '*'
+                    buttons_bot[4][3] = '*'
+                    buttons_bot[4][5] = '*'
+                    buttons_bot[5][3] = '*'
+                    buttons_bot[5][5] = '*'
+                    buttons_bot[6][3] = '*'
+                    buttons_bot[6][4] = '*'
+                    buttons_bot[6][5] = '*'
+            if row_bot == 5 and column_bot == 4:
+                buttons_bot[5][4] = 'X'
+                if buttons_bot[4][4] == 'X':
+                    buttons_bot[3][3] = '*'
+                    buttons_bot[3][4] = '*'
+                    buttons_bot[3][5] = '*'
+                    buttons_bot[4][3] = '*'
+                    buttons_bot[4][5] = '*'
+                    buttons_bot[5][3] = '*'
+                    buttons_bot[5][5] = '*'
+                    buttons_bot[6][3] = '*'
+                    buttons_bot[6][4] = '*'
+                    buttons_bot[6][5] = '*'
+            if row_bot == 5 and column_bot == 1:
+                buttons_bot[5][1] = 'X'
+                if buttons_bot[6][1] == 'X' and buttons_bot[7][1] == 'X':
+                    buttons_bot[4][0] = '*'
+                    buttons_bot[4][1] = '*'
+                    buttons_bot[4][2] = '*'
+                    buttons_bot[5][0] = '*'
+                    buttons_bot[5][2] = '*'
+                    buttons_bot[6][0] = '*'
+                    buttons_bot[7][0] = '*'
+                    buttons_bot[7][2] = '*'
+            if row_bot == 6 and column_bot == 1:
+                buttons_bot[6][1] = 'X'
+                if buttons_bot[5][1] == 'X' and buttons_bot[7][1] == 'X':
+                    buttons_bot[4][0] = '*'
+                    buttons_bot[4][1] = '*'
+                    buttons_bot[4][2] = '*'
+                    buttons_bot[5][0] = '*'
+                    buttons_bot[5][2] = '*'
+                    buttons_bot[6][0] = '*'
+                    buttons_bot[7][0] = '*'
+                    buttons_bot[7][2] = '*'
+            if row_bot == 7 and column_bot == 1:
+                buttons_bot[7][1] = 'X'
+                if buttons_bot[5][1] == 'X' and buttons_bot[6][1] == 'X':
+                    buttons_bot[4][0] = '*'
+                    buttons_bot[4][1] = '*'
+                    buttons_bot[4][2] = '*'
+                    buttons_bot[5][0] = '*'
+                    buttons_bot[5][2] = '*'
+                    buttons_bot[6][0] = '*'
+                    buttons_bot[6][2] = '*'
+                    buttons_bot[7][0] = '*'
+                    buttons_bot[7][2] = '*'
+            if not (row_bot == 2 and column_bot == 0) and not (row_bot == 1 and column_bot == 6) and not (
+                    row_bot == 3 and column_bot == 7) and not (row_bot == 2 and column_bot == 2) and not (
+                    row_bot == 3 and column_bot == 2) and not (row_bot == 4 and column_bot == 4) and not (
+                    row_bot == 5 and column_bot == 4) and not (row_bot == 5 and column_bot == 1) and not (
+                    row_bot == 6 and column_bot == 1) and not (row_bot == 7 and column_bot == 1):
+                buttons_bot[row_bot][column_bot] = '*'
+        if rast_bot == '4':
+            if row_bot == 1 and column_bot == 1:
+                buttons_bot[1][1] = 'X'
+                buttons_bot[0][0] = '*'
+                buttons_bot[0][1] = '*'
+                buttons_bot[0][2] = '*'
+                buttons_bot[1][0] = '*'
+                buttons_bot[1][2] = '*'
+                buttons_bot[2][0] = '*'
+                buttons_bot[2][1] = '*'
+                buttons_bot[2][2] = '*'
+            if row_bot == 5 and column_bot == 1:
+                buttons_bot[5][1] = 'X'
+                buttons_bot[4][0] = '*'
+                buttons_bot[4][1] = '*'
+                buttons_bot[4][2] = '*'
+                buttons_bot[5][0] = '*'
+                buttons_bot[5][2] = '*'
+                buttons_bot[6][0] = '*'
+                buttons_bot[6][1] = '*'
+                buttons_bot[6][2] = '*'
+            if row_bot == 7 and column_bot == 2:
+                buttons_bot[7][2] = 'X'
+                buttons_bot[7][1] = '*'
+                buttons_bot[6][1] = '*'
+                buttons_bot[6][2] = '*'
+                buttons_bot[6][3] = '*'
+                buttons_bot[7][3] = '*'
+            if row_bot == 6 and column_bot == 4:
+                buttons_bot[6][4] = 'X'
+                if buttons_bot[6][5] == 'X':
+                    buttons_bot[5][3] = '*'
+                    buttons_bot[5][4] = '*'
+                    buttons_bot[5][5] = '*'
+                    buttons_bot[5][6] = '*'
+                    buttons_bot[6][3] = '*'
+                    buttons_bot[6][6] = '*'
+                    buttons_bot[7][3] = '*'
+                    buttons_bot[7][4] = '*'
+                    buttons_bot[7][5] = '*'
+                    buttons_bot[7][6] = '*'
+            if row_bot == 6 and column_bot == 5:
+                buttons_bot[6][5] = 'X'
+                if buttons_bot[6][4] == 'X':
+                    buttons_bot[5][3] = '*'
+                    buttons_bot[5][4] = '*'
+                    buttons_bot[5][5] = '*'
+                    buttons_bot[5][6] = '*'
+                    buttons_bot[6][3] = '*'
+                    buttons_bot[6][6] = '*'
+                    buttons_bot[7][3] = '*'
+                    buttons_bot[7][4] = '*'
+                    buttons_bot[7][5] = '*'
+                    buttons_bot[7][6] = '*'
+            if row_bot == 1 and column_bot == 6:
+                buttons_bot[1][6] = 'X'
+                if buttons_bot[2][6] == 'X':
+                    buttons_bot[0][5] = '*'
+                    buttons_bot[0][6] = '*'
+                    buttons_bot[0][7] = '*'
+                    buttons_bot[1][5] = '*'
+                    buttons_bot[1][7] = '*'
+                    buttons_bot[2][5] = '*'
+                    buttons_bot[2][7] = '*'
+                    buttons_bot[3][5] = '*'
+                    buttons_bot[3][6] = '*'
+                    buttons_bot[3][7] = '*'
+            if row_bot == 2 and column_bot == 6:
+                buttons_bot[2][6] = 'X'
+                if buttons_bot[1][6] == 'X':
+                    buttons_bot[0][5] = '*'
+                    buttons_bot[0][6] = '*'
+                    buttons_bot[0][7] = '*'
+                    buttons_bot[1][5] = '*'
+                    buttons_bot[1][7] = '*'
+                    buttons_bot[2][5] = '*'
+                    buttons_bot[2][7] = '*'
+                    buttons_bot[3][5] = '*'
+                    buttons_bot[3][6] = '*'
+                    buttons_bot[3][7] = '*'
+            if row_bot == 2 and column_bot == 3:
+                buttons_bot[2][3] = 'X'
+                if buttons_bot[3][3] == 'X' and buttons_bot[4][3] == 'X':
+                    buttons_bot[1][2] = '*'
+                    buttons_bot[1][3] = '*'
+                    buttons_bot[1][4] = '*'
+                    buttons_bot[2][2] = '*'
+                    buttons_bot[2][4] = '*'
+                    buttons_bot[3][2] = '*'
+                    buttons_bot[3][4] = '*'
                     buttons_bot[4][2] = '*'
                     buttons_bot[4][4] = '*'
                     buttons_bot[5][2] = '*'
                     buttons_bot[5][3] = '*'
                     buttons_bot[5][4] = '*'
-                if row_bot == 4 and column_bot == 6:
-                    buttons_bot[4][6] = 'X'
-                    if buttons_bot[5][6] == 'X':
-                        buttons_bot[3][5] = '*'
-                        buttons_bot[3][6] = '*'
-                        buttons_bot[3][7] = '*'
-                        buttons_bot[4][5] = '*'
-                        buttons_bot[4][7] = '*'
-                        buttons_bot[5][5] = '*'
-                        buttons_bot[5][7] = '*'
-                        buttons_bot[6][5] = '*'
-                        buttons_bot[6][6] = '*'
-                        buttons_bot[6][7] = '*'
-                if row_bot == 5 and column_bot == 6:
-                    buttons_bot[5][6] = 'X'
-                    if buttons_bot[4][6] == 'X':
-                        buttons_bot[3][5] = '*'
-                        buttons_bot[3][6] = '*'
-                        buttons_bot[3][7] = '*'
-                        buttons_bot[4][5] = '*'
-                        buttons_bot[4][7] = '*'
-                        buttons_bot[5][5] = '*'
-                        buttons_bot[5][7] = '*'
-                        buttons_bot[6][5] = '*'
-                        buttons_bot[6][6] = '*'
-                        buttons_bot[6][7] = '*'
-                if row_bot == 6 and column_bot == 3:
-                    buttons_bot[6][3] = 'X'
-                    if buttons_bot[6][4] == 'X':
-                        buttons_bot[5][2] = '*'
-                        buttons_bot[5][3] = '*'
-                        buttons_bot[5][4] = '*'
-                        buttons_bot[5][5] = '*'
-                        buttons_bot[6][2] = '*'
-                        buttons_bot[6][5] = '*'
-                        buttons_bot[7][2] = '*'
-                        buttons_bot[7][3] = '*'
-                        buttons_bot[7][4] = '*'
-                        buttons_bot[7][5] = '*'
-                if row_bot == 6 and column_bot == 4:
-                    buttons_bot[6][4] = 'X'
-                    if buttons_bot[6][3] == 'X':
-                        buttons_bot[5][2] = '*'
-                        buttons_bot[5][3] = '*'
-                        buttons_bot[5][4] = '*'
-                        buttons_bot[5][5] = '*'
-                        buttons_bot[6][2] = '*'
-                        buttons_bot[6][5] = '*'
-                        buttons_bot[7][2] = '*'
-                        buttons_bot[7][3] = '*'
-                        buttons_bot[7][4] = '*'
-                        buttons_bot[7][5] = '*'
-                if row_bot == 2 and column_bot == 1:
-                    buttons_bot[2][1] = 'X'
-                    if buttons_bot[2][2] == 'X' and buttons_bot[2][3] == 'X':
-                        buttons_bot[1][0] = '*'
-                        buttons_bot[1][1] = '*'
-                        buttons_bot[1][2] = '*'
-                        buttons_bot[1][3] = '*'
-                        buttons_bot[1][4] = '*'
-                        buttons_bot[2][0] = '*'
-                        buttons_bot[2][4] = '*'
-                        buttons_bot[3][0] = '*'
-                        buttons_bot[3][1] = '*'
-                        buttons_bot[3][2] = '*'
-                        buttons_bot[3][3] = '*'
-                        buttons_bot[3][4] = '*'
-                if row_bot == 2 and column_bot == 2:
-                    buttons_bot[2][2] = 'X'
-                    if buttons_bot[2][1] == 'X' and buttons_bot[2][3] == 'X':
-                        buttons_bot[1][0] = '*'
-                        buttons_bot[1][1] = '*'
-                        buttons_bot[1][2] = '*'
-                        buttons_bot[1][3] = '*'
-                        buttons_bot[1][4] = '*'
-                        buttons_bot[2][0] = '*'
-                        buttons_bot[2][4] = '*'
-                        buttons_bot[3][0] = '*'
-                        buttons_bot[3][1] = '*'
-                        buttons_bot[3][2] = '*'
-                        buttons_bot[3][3] = '*'
-                        buttons_bot[3][4] = '*'
-                if row_bot == 2 and column_bot == 3:
-                    buttons_bot[2][3] = 'X'
-                    if buttons_bot[2][2] == 'X' and buttons_bot[2][1] == 'X':
-                        buttons_bot[1][0] = '*'
-                        buttons_bot[1][1] = '*'
-                        buttons_bot[1][2] = '*'
-                        buttons_bot[1][3] = '*'
-                        buttons_bot[1][4] = '*'
-                        buttons_bot[2][0] = '*'
-                        buttons_bot[2][4] = '*'
-                        buttons_bot[3][0] = '*'
-                        buttons_bot[3][1] = '*'
-                        buttons_bot[3][2] = '*'
-                        buttons_bot[3][3] = '*'
-                        buttons_bot[3][4] = '*'
-                if not(row_bot == 1 and column_bot == 6) and not(row_bot == 4 and column_bot == 1) and not(row_bot == 4 and column_bot == 3) and not(row_bot == 4 and column_bot == 6) and not(row_bot == 5 and column_bot == 6) and not(row_bot == 6 and column_bot == 3) and not(row_bot == 6 and column_bot == 4) and not(row_bot == 2 and column_bot == 1) and not(row_bot == 2 and column_bot == 2) and not(row_bot == 2 and column_bot == 3):
-                    buttons_bot[row_bot][column_bot] = '*'
-            gaming()
-            bot.delete_message(call.message.chat.id, call.message.message_id)
-            bot.delete_message(call.message.chat.id, call.message.message_id - 1)
-            send_buttons(call.message.chat.id, 'user')
-            bot_send_buttons(call.message.chat.id)
+            if row_bot == 3 and column_bot == 3:
+                buttons_bot[3][3] = 'X'
+                if buttons_bot[2][3] == 'X' and buttons_bot[4][3] == 'X':
+                    buttons_bot[1][2] = '*'
+                    buttons_bot[1][3] = '*'
+                    buttons_bot[1][4] = '*'
+                    buttons_bot[2][2] = '*'
+                    buttons_bot[2][4] = '*'
+                    buttons_bot[3][2] = '*'
+                    buttons_bot[3][4] = '*'
+                    buttons_bot[4][2] = '*'
+                    buttons_bot[4][4] = '*'
+                    buttons_bot[5][2] = '*'
+                    buttons_bot[5][3] = '*'
+                    buttons_bot[5][4] = '*'
+            if row_bot == 4 and column_bot == 3:
+                buttons_bot[4][3] = 'X'
+                if buttons_bot[3][3] == 'X' and buttons_bot[2][3] == 'X':
+                    buttons_bot[1][2] = '*'
+                    buttons_bot[1][3] = '*'
+                    buttons_bot[1][4] = '*'
+                    buttons_bot[2][2] = '*'
+                    buttons_bot[2][4] = '*'
+                    buttons_bot[3][2] = '*'
+                    buttons_bot[3][4] = '*'
+                    buttons_bot[4][2] = '*'
+                    buttons_bot[4][4] = '*'
+                    buttons_bot[5][2] = '*'
+                    buttons_bot[5][3] = '*'
+                    buttons_bot[5][4] = '*'
+            if not (row_bot == 1 and column_bot == 1) and not (row_bot == 5 and column_bot == 1) and not (
+                    row_bot == 7 and column_bot == 2) and not (row_bot == 6 and column_bot == 4) and not (
+                    row_bot == 6 and column_bot == 5) and not (row_bot == 1 and column_bot == 6) and not (
+                    row_bot == 2 and column_bot == 6) and not (row_bot == 2 and column_bot == 3) and not (
+                    row_bot == 3 and column_bot == 3) and not (row_bot == 4 and column_bot == 3):
+                buttons_bot[row_bot][column_bot] = '*'
+        if rast_bot == '5':
+            if row_bot == 1 and column_bot == 6:
+                buttons_bot[1][6] = 'X'
+                buttons_bot[0][5] = '*'
+                buttons_bot[0][6] = '*'
+                buttons_bot[0][7] = '*'
+                buttons_bot[1][5] = '*'
+                buttons_bot[1][7] = '*'
+                buttons_bot[2][5] = '*'
+                buttons_bot[2][6] = '*'
+                buttons_bot[2][7] = '*'
+            if row_bot == 4 and column_bot == 1:
+                buttons_bot[4][1] = 'X'
+                buttons_bot[3][0] = '*'
+                buttons_bot[3][1] = '*'
+                buttons_bot[3][2] = '*'
+                buttons_bot[4][0] = '*'
+                buttons_bot[4][2] = '*'
+                buttons_bot[5][0] = '*'
+                buttons_bot[5][1] = '*'
+                buttons_bot[5][2] = '*'
+            if row_bot == 4 and column_bot == 3:
+                buttons_bot[4][3] = 'X'
+                buttons_bot[3][2] = '*'
+                buttons_bot[3][3] = '*'
+                buttons_bot[4][2] = '*'
+                buttons_bot[4][4] = '*'
+                buttons_bot[5][2] = '*'
+                buttons_bot[5][3] = '*'
+                buttons_bot[5][4] = '*'
+            if row_bot == 4 and column_bot == 6:
+                buttons_bot[4][6] = 'X'
+                if buttons_bot[5][6] == 'X':
+                    buttons_bot[3][5] = '*'
+                    buttons_bot[3][6] = '*'
+                    buttons_bot[3][7] = '*'
+                    buttons_bot[4][5] = '*'
+                    buttons_bot[4][7] = '*'
+                    buttons_bot[5][5] = '*'
+                    buttons_bot[5][7] = '*'
+                    buttons_bot[6][5] = '*'
+                    buttons_bot[6][6] = '*'
+                    buttons_bot[6][7] = '*'
+            if row_bot == 5 and column_bot == 6:
+                buttons_bot[5][6] = 'X'
+                if buttons_bot[4][6] == 'X':
+                    buttons_bot[3][5] = '*'
+                    buttons_bot[3][6] = '*'
+                    buttons_bot[3][7] = '*'
+                    buttons_bot[4][5] = '*'
+                    buttons_bot[4][7] = '*'
+                    buttons_bot[5][5] = '*'
+                    buttons_bot[5][7] = '*'
+                    buttons_bot[6][5] = '*'
+                    buttons_bot[6][6] = '*'
+                    buttons_bot[6][7] = '*'
+            if row_bot == 6 and column_bot == 3:
+                buttons_bot[6][3] = 'X'
+                if buttons_bot[6][4] == 'X':
+                    buttons_bot[5][2] = '*'
+                    buttons_bot[5][3] = '*'
+                    buttons_bot[5][4] = '*'
+                    buttons_bot[5][5] = '*'
+                    buttons_bot[6][2] = '*'
+                    buttons_bot[6][5] = '*'
+                    buttons_bot[7][2] = '*'
+                    buttons_bot[7][3] = '*'
+                    buttons_bot[7][4] = '*'
+                    buttons_bot[7][5] = '*'
+            if row_bot == 6 and column_bot == 4:
+                buttons_bot[6][4] = 'X'
+                if buttons_bot[6][3] == 'X':
+                    buttons_bot[5][2] = '*'
+                    buttons_bot[5][3] = '*'
+                    buttons_bot[5][4] = '*'
+                    buttons_bot[5][5] = '*'
+                    buttons_bot[6][2] = '*'
+                    buttons_bot[6][5] = '*'
+                    buttons_bot[7][2] = '*'
+                    buttons_bot[7][3] = '*'
+                    buttons_bot[7][4] = '*'
+                    buttons_bot[7][5] = '*'
+            if row_bot == 2 and column_bot == 1:
+                buttons_bot[2][1] = 'X'
+                if buttons_bot[2][2] == 'X' and buttons_bot[2][3] == 'X':
+                    buttons_bot[1][0] = '*'
+                    buttons_bot[1][1] = '*'
+                    buttons_bot[1][2] = '*'
+                    buttons_bot[1][3] = '*'
+                    buttons_bot[1][4] = '*'
+                    buttons_bot[2][0] = '*'
+                    buttons_bot[2][4] = '*'
+                    buttons_bot[3][0] = '*'
+                    buttons_bot[3][1] = '*'
+                    buttons_bot[3][2] = '*'
+                    buttons_bot[3][3] = '*'
+                    buttons_bot[3][4] = '*'
+            if row_bot == 2 and column_bot == 2:
+                buttons_bot[2][2] = 'X'
+                if buttons_bot[2][1] == 'X' and buttons_bot[2][3] == 'X':
+                    buttons_bot[1][0] = '*'
+                    buttons_bot[1][1] = '*'
+                    buttons_bot[1][2] = '*'
+                    buttons_bot[1][3] = '*'
+                    buttons_bot[1][4] = '*'
+                    buttons_bot[2][0] = '*'
+                    buttons_bot[2][4] = '*'
+                    buttons_bot[3][0] = '*'
+                    buttons_bot[3][1] = '*'
+                    buttons_bot[3][2] = '*'
+                    buttons_bot[3][3] = '*'
+                    buttons_bot[3][4] = '*'
+            if row_bot == 2 and column_bot == 3:
+                buttons_bot[2][3] = 'X'
+                if buttons_bot[2][2] == 'X' and buttons_bot[2][1] == 'X':
+                    buttons_bot[1][0] = '*'
+                    buttons_bot[1][1] = '*'
+                    buttons_bot[1][2] = '*'
+                    buttons_bot[1][3] = '*'
+                    buttons_bot[1][4] = '*'
+                    buttons_bot[2][0] = '*'
+                    buttons_bot[2][4] = '*'
+                    buttons_bot[3][0] = '*'
+                    buttons_bot[3][1] = '*'
+                    buttons_bot[3][2] = '*'
+                    buttons_bot[3][3] = '*'
+                    buttons_bot[3][4] = '*'
+            if not (row_bot == 1 and column_bot == 6) and not (row_bot == 4 and column_bot == 1) and not (
+                    row_bot == 4 and column_bot == 3) and not (row_bot == 4 and column_bot == 6) and not (
+                    row_bot == 5 and column_bot == 6) and not (row_bot == 6 and column_bot == 3) and not (
+                    row_bot == 6 and column_bot == 4) and not (row_bot == 2 and column_bot == 1) and not (
+                    row_bot == 2 and column_bot == 2) and not (row_bot == 2 and column_bot == 3):
+                buttons_bot[row_bot][column_bot] = '*'
 
 
 ships_sumbols = ['[', ']', '[ ]', ' [ ', ' ] ', '=']
@@ -841,56 +1013,268 @@ def gaming():
                         buttons[rand_row][rand_column] = 'X'
                     elif rand_row + i >= 0 and rand_row + i < len(buttons) and rand_column + j >= 0 and rand_column + j < len(buttons[0]):
                         buttons[rand_row + i][rand_column + j] = '*'
-        # if buttons[rand_row][rand_column] in ships_sumbols[:2]:
-        #     if buttons[rand_row - 1][rand_column] in ships_sumbols[:2] or buttons[rand_row + 1][rand_column] in ships_sumbols[:2] or buttons[rand_row][rand_column - 1] in ships_sumbols[:2] or buttons[rand_row][rand_column + 1] in ships_sumbols[:2]:
-        #         buttons[rand_row][rand_column] = 'X'
-        #         if buttons[rand_row - 1][rand_column] == 'X':
-        #             buttons[rand_row - 2][rand_column - 1] = '*'
-        #             buttons[rand_row - 2][rand_column] = '*'
-        #             buttons[rand_row - 2][rand_column + 1] = '*'
-        #             buttons[rand_row - 1][rand_column - 1] = '*'
-        #             buttons[rand_row - 1][rand_column + 1] = '*'
-        #             buttons[rand_row][rand_column - 1] = '*'
-        #             buttons[rand_row][rand_column + 1] = '*'
-        #             buttons[rand_row + 1][rand_column - 1] = '*'
-        #             buttons[rand_row + 1][rand_column] = '*'
-        #             buttons[rand_row + 1][rand_column + 1] = '*'
-        #         if buttons[rand_row + 1][rand_column] == 'X':
-        #             buttons[rand_row + 2][rand_column + 1] = '*'
-        #             buttons[rand_row + 2][rand_column] = '*'
-        #             buttons[rand_row + 2][rand_column - 1] = '*'
-        #             buttons[rand_row + 1][rand_column + 1] = '*'
-        #             buttons[rand_row + 1][rand_column - 1] = '*'
-        #             buttons[rand_row][rand_column + 1] = '*'
-        #             buttons[rand_row][rand_column - 1] = '*'
-        #             buttons[rand_row - 1][rand_column + 1] = '*'
-        #             buttons[rand_row - 1][rand_column] = '*'
-        #             buttons[rand_row - 1][rand_column - 1] = '*'
-        #         if buttons[rand_row][rand_column - 1] == 'X':
-        #             buttons[rand_row - 1][rand_column - 2] = '*'
-        #             buttons[rand_row][rand_column - 2] = '*'
-        #             buttons[rand_row + 1][rand_column - 2] = '*'
-        #             buttons[rand_row - 1][rand_column - 1] = '*'
-        #             buttons[rand_row + 1][rand_column - 1] = '*'
-        #             buttons[rand_row - 1][rand_column] = '*'
-        #             buttons[rand_row + 1][rand_column] = '*'
-        #             buttons[rand_row - 1][rand_column + 1] = '*'
-        #             buttons[rand_row][rand_column + 1] = '*'
-        #             buttons[rand_row + 1][rand_column + 1] = '*'
-        #         if buttons[rand_row][rand_column + 1] == 'X':
-        #             buttons[rand_row + 1][rand_column + 2] = '*'
-        #             buttons[rand_row][rand_column + 2] = '*'
-        #             buttons[rand_row - 1][rand_column + 2] = '*'
-        #             buttons[rand_row + 1][rand_column + 1] = '*'
-        #             buttons[rand_row - 1][rand_column + 1] = '*'
-        #             buttons[rand_row + 1][rand_column] = '*'
-        #             buttons[rand_row - 1][rand_column] = '*'
-        #             buttons[rand_row + 1][rand_column - 1] = '*'
-        #             buttons[rand_row][rand_column - 1] = '*'
-        #             buttons[rand_row - 1][rand_column - 1] = '*'
+            gaming()
+        if buttons[rand_row][rand_column] in ships_sumbols[:2]:
+            if (buttons[rand_row - 1][rand_column] in ships_sumbols[:2] or buttons[rand_row + 1][rand_column] in ships_sumbols[:2] or buttons[rand_row][rand_column - 1] in ships_sumbols[:2] or buttons[rand_row][rand_column + 1] in ships_sumbols[:2]) or (buttons[rand_row - 1][rand_column] == 'X' or buttons[rand_row + 1][rand_column] == 'X' or buttons[rand_row][rand_column - 1] == 'X' or buttons[rand_row][rand_column + 1] == 'X'):
+                buttons[rand_row][rand_column] = 'X'
+                rand_paw = random.choice(['1', '2'])
+                if rand_paw == '1':
+                    gaming()
+                    if buttons[rand_row - 1][rand_column] in ships_sumbols[:2]:
+                        buttons[rand_row - 1][rand_column] = 'X'
+                        if rand_column - 1 > 0:
+                            buttons[rand_row - 2][rand_column - 1] = ' * '
+                        if rand_column > 0:
+                            buttons[rand_row - 2][rand_column] = ' * '
+                        if rand_column + 1 < len(buttons[0]):
+                            buttons[rand_row - 2][rand_column + 1] = ' * '
+                        if rand_column - 1 > 0:
+                            buttons[rand_row - 1][rand_column - 1] = ' * '
+                        if rand_column + 1 < len(buttons[0]):
+                            buttons[rand_row - 1][rand_column + 1] = ' * '
+                        if rand_column < len(buttons[0]):
+                            buttons[rand_row][rand_column - 1] = ' * '
+                        if rand_column > 0:
+                            buttons[rand_row][rand_column + 1] = ' * '
+                        if rand_column + 1 < len(buttons[0]):
+                            buttons[rand_row + 1][rand_column - 1] = ' * '
+                        if rand_column > 0:
+                            buttons[rand_row + 1][rand_column] = ' * '
+                        if rand_column + 1 < len(buttons[0]):
+                            buttons[rand_row + 1][rand_column + 1] = ' * '
+                    if buttons[rand_row + 1][rand_column] in ships_sumbols[:2]:
+                        buttons[rand_row + 1][rand_column] = 'X'
+                        if rand_column + 1 < len(buttons[0]):
+                            buttons[rand_row + 2][rand_column + 1] = ' * '
+                        if rand_column > 0:
+                            buttons[rand_row + 2][rand_column] = ' * '
+                        if rand_column - 1 > 0:
+                            buttons[rand_row + 2][rand_column - 1] = ' * '
+                        if rand_column + 1 < len(buttons[0]):
+                            buttons[rand_row + 1][rand_column + 1] = ' * '
+                        if rand_column - 1 > 0:
+                            buttons[rand_row + 1][rand_column - 1] = ' * '
+                        if rand_column < len(buttons[0]):
+                            buttons[rand_row][rand_column + 1] = ' * '
+                        if rand_column > 0:
+                            buttons[rand_row][rand_column - 1] = ' * '
+                        if rand_column + 1 < len(buttons[0]):
+                            buttons[rand_row - 1][rand_column + 1] = ' * '
+                        if rand_column > 0:
+                            buttons[rand_row - 1][rand_column] = ' * '
+                        if rand_column - 1 > 0:
+                            buttons[rand_row - 1][rand_column - 1] = ' * '
+                    if buttons[rand_row][rand_column - 1] in ships_sumbols[:2]:
+                        buttons[rand_row][rand_column - 1] = 'X'
+                        if rand_column - 2 > 0:
+                            buttons[rand_row - 1][rand_column - 2] = ' * '
+                        if rand_column - 2 < len(buttons[0]):
+                            buttons[rand_row][rand_column - 2] = ' * '
+                        if rand_column - 2 < len(buttons[0]):
+                            buttons[rand_row + 1][rand_column - 2] = ' * '
+                        if rand_column - 1 > 0:
+                            buttons[rand_row - 1][rand_column - 1] = ' * '
+                        if rand_column - 1 < len(buttons[0]):
+                            buttons[rand_row + 1][rand_column - 1] = ' * '
+                        if rand_column > 0:
+                            buttons[rand_row - 1][rand_column] = ' * '
+                        if rand_column < len(buttons[0]):
+                            buttons[rand_row + 1][rand_column] = ' * '
+                        if rand_column + 1 < len(buttons[0]):
+                            buttons[rand_row - 1][rand_column + 1] = ' * '
+                        if rand_column + 1 > 0:
+                            buttons[rand_row][rand_column + 1] = ' * '
+                        if rand_column + 1 < len(buttons[0]):
+                            buttons[rand_row + 1][rand_column + 1] = ' * '
+                    if buttons[rand_row][rand_column + 1] in ships_sumbols[:2]:
+                        buttons[rand_row][rand_column + 1] = 'X'
+                        if rand_column + 2 < len(buttons[0]):
+                            buttons[rand_row + 1][rand_column + 2] = ' * '
+                        if rand_column + 2 > 0:
+                            buttons[rand_row - 1][rand_column + 2] = ' * '
+                        if rand_column + 1 < len(buttons[0]):
+                            buttons[rand_row + 1][rand_column + 1] = ' * '
+                        if rand_column + 1 > 0:
+                            buttons[rand_row - 1][rand_column + 1] = ' * '
+                        if rand_column < len(buttons[0]):
+                            buttons[rand_row + 1][rand_column] = ' * '
+                        if rand_column > 0:
+                            buttons[rand_row - 1][rand_column] = ' * '
+                        if rand_column - 1 > 0:
+                            buttons[rand_row + 1][rand_column - 1] = ' * '
+                        if rand_column - 1 < len(buttons[0]):
+                            buttons[rand_row][rand_column - 1] = ' * '
+                        if rand_column - 1 > 0:
+                            buttons[rand_row - 1][rand_column - 1] = ' * '
+                else:
+                    gaming()
+                if buttons[rand_row - 1][rand_column] == 'X':
+                    if rand_column - 1 > 0:
+                        buttons[rand_row - 2][rand_column - 1] = ' * '
+                    if rand_column > 0:
+                        buttons[rand_row - 2][rand_column] = ' * '
+                    if rand_column + 1 < len(buttons[0]):
+                        buttons[rand_row - 2][rand_column + 1] = ' * '
+                    if rand_column - 1 > 0:
+                        buttons[rand_row - 1][rand_column - 1] = ' * '
+                    if rand_column + 1 < len(buttons[0]):
+                        buttons[rand_row - 1][rand_column + 1] = ' * '
+                    if rand_column < len(buttons[0]):
+                        buttons[rand_row][rand_column - 1] = ' * '
+                    if rand_column > 0:
+                        buttons[rand_row][rand_column + 1] = ' * '
+                    if rand_column + 1 < len(buttons[0]):
+                        buttons[rand_row + 1][rand_column - 1] = ' * '
+                    if rand_column > 0:
+                        buttons[rand_row + 1][rand_column] = ' * '
+                    if rand_column + 1 < len(buttons[0]):
+                        buttons[rand_row + 1][rand_column + 1] = ' * '
+                if buttons[rand_row + 1][rand_column] == 'X':
+                    if rand_column + 1 < len(buttons[0]):
+                        buttons[rand_row + 2][rand_column + 1] = ' * '
+                    if rand_column > 0:
+                        buttons[rand_row + 2][rand_column] = ' * '
+                    if rand_column - 1 > 0:
+                        buttons[rand_row + 2][rand_column - 1] = ' * '
+                    if rand_column + 1 < len(buttons[0]):
+                        buttons[rand_row + 1][rand_column + 1] = ' * '
+                    if rand_column - 1 > 0:
+                        buttons[rand_row + 1][rand_column - 1] = ' * '
+                    if rand_column < len(buttons[0]):
+                        buttons[rand_row][rand_column + 1] = ' * '
+                    if rand_column > 0:
+                        buttons[rand_row][rand_column - 1] = ' * '
+                    if rand_column + 1 < len(buttons[0]):
+                        buttons[rand_row - 1][rand_column + 1] = ' * '
+                    if rand_column > 0:
+                        buttons[rand_row - 1][rand_column] = ' * '
+                    if rand_column - 1 > 0:
+                        buttons[rand_row - 1][rand_column - 1] = ' * '
+                if buttons[rand_row][rand_column + 1] == 'X':
+                    if rand_column + 2 < len(buttons[0]):
+                        buttons[rand_row + 1][rand_column + 2] = ' * '
+                    if rand_column + 2 > 0:
+                        buttons[rand_row - 1][rand_column + 2] = ' * '
+                    if rand_column + 1 < len(buttons[0]):
+                        buttons[rand_row + 1][rand_column + 1] = ' * '
+                    if rand_column + 1 > 0:
+                        buttons[rand_row - 1][rand_column + 1] = ' * '
+                    if rand_column < len(buttons[0]):
+                        buttons[rand_row + 1][rand_column] = ' * '
+                    if rand_column > 0:
+                        buttons[rand_row - 1][rand_column] = ' * '
+                    if rand_column - 1 > 0:
+                        buttons[rand_row + 1][rand_column - 1] = ' * '
+                    if rand_column - 1 < len(buttons[0]):
+                        buttons[rand_row][rand_column - 1] = ' * '
+                    if rand_column - 1 > 0:
+                        buttons[rand_row - 1][rand_column - 1] = ' * '
+                if buttons[rand_row][rand_column + 1] == 'X':
+                    if rand_column + 2 < len(buttons[0]):
+                        buttons[rand_row + 1][rand_column + 2] = ' * '
+                    if rand_column + 2 > 0:
+                        buttons[rand_row - 1][rand_column + 2] = ' * '
+                    if rand_column + 1 < len(buttons[0]):
+                        buttons[rand_row + 1][rand_column + 1] = ' * '
+                    if rand_column + 1 > 0:
+                        buttons[rand_row - 1][rand_column + 1] = ' * '
+                    if rand_column < len(buttons[0]):
+                        buttons[rand_row + 1][rand_column] = ' * '
+                    if rand_column > 0:
+                        buttons[rand_row - 1][rand_column] = ' * '
+                    if rand_column - 1 > 0:
+                        buttons[rand_row + 1][rand_column - 1] = ' * '
+                    if rand_column - 1 < len(buttons[0]):
+                        buttons[rand_row][rand_column - 1] = ' * '
+                    if rand_column - 1 > 0:
+                        buttons[rand_row - 1][rand_column - 1] = ' * '
+
+        if buttons[rand_row][rand_column] in ships_sumbols[3:]:
+            if (buttons[rand_row - 2][rand_column] in ships_sumbols[:3] or buttons[rand_row + 2][rand_column] in ships_sumbols[:3] or buttons[rand_row][rand_column - 2] in ships_sumbols[:3] or buttons[rand_row][rand_column + 2] in ships_sumbols[:3]) or (buttons[rand_row - 1][rand_column] in ships_sumbols[:3] or buttons[rand_row + 1][rand_column] in ships_sumbols[:3] or buttons[rand_row][rand_column - 1] in ships_sumbols[:3] or buttons[rand_row][rand_column + 1] in ships_sumbols[:3]) or (buttons[rand_row - 1][rand_column] == 'X' or buttons[rand_row + 1][rand_column] == 'X' or buttons[rand_row][rand_column - 1] == 'X' or buttons[rand_row][rand_column + 1] == 'X') or (buttons[rand_row - 2][rand_column] == 'X' or buttons[rand_row + 2][rand_column] == 'X' or buttons[rand_row][rand_column - 2] == 'X' or buttons[rand_row][rand_column + 2] == 'X'):
+                buttons[rand_row][rand_column] = 'X'
+                gaming()
+                if buttons[rand_row - 1][rand_column] == 'X' and buttons[rand_row - 2][rand_column] == 'X':
+                    buttons[rand_row - 3][rand_column - 1] = '*'
+                    buttons[rand_row - 3][rand_column] = '*'
+                    buttons[rand_row - 3][rand_column + 1] = '*'
+                    buttons[rand_row - 2][rand_column - 1] = '*'
+                    buttons[rand_row - 2][rand_column + 1] = '*'
+                    buttons[rand_row - 1][rand_column - 1] = '*'
+                    buttons[rand_row - 1][rand_column + 1] = '*'
+                    buttons[rand_row][rand_column - 1] = '*'
+                    buttons[rand_row][rand_column + 1] = '*'
+                    buttons[rand_row + 1][rand_column + 1] = '*'
+                    buttons[rand_row + 1][rand_column] = '*'
+                    buttons[rand_row + 1][rand_column - 1] = '*'
+                if buttons[rand_row + 1][rand_column] == 'X' and buttons[rand_row + 2][rand_column] == 'X':
+                    buttons[rand_row + 3][rand_column - 1] = '*'
+                    buttons[rand_row + 3][rand_column] = '*'
+                    buttons[rand_row + 3][rand_column + 1] = '*'
+                    buttons[rand_row + 2][rand_column - 1] = '*'
+                    buttons[rand_row + 2][rand_column + 2] = '*'
+                    buttons[rand_row + 1][rand_column - 1] = '*'
+                    buttons[rand_row + 1][rand_column + 1] = '*'
+                    buttons[rand_row][rand_column + 1] = '*'
+                    buttons[rand_row][rand_column - 1] = '*'
+                    buttons[rand_row - 1][rand_column + 1] = '*'
+                    buttons[rand_row - 1][rand_column] = '*'
+                    buttons[rand_row - 1][rand_column - 1] = '*'
+                if buttons[rand_row - 1][rand_column] == 'X' and buttons[rand_row + 1][rand_column] == 'X':
+                    buttons[rand_row - 2][rand_column - 1] = '*'
+                    buttons[rand_row - 2][rand_column] = '*'
+                    buttons[rand_row - 2][rand_column + 1] = '*'
+                    buttons[rand_row - 1][rand_column - 1] = '*'
+                    buttons[rand_row - 1][rand_column + 1] = '*'
+                    buttons[rand_row][rand_column + 1] = '*'
+                    buttons[rand_row][rand_column - 1] = '*'
+                    buttons[rand_row + 1][rand_column + 1] = '*'
+                    buttons[rand_row + 1][rand_column - 1] = '*'
+                    buttons[rand_row + 2][rand_column - 1] = '*'
+                    buttons[rand_row + 2][rand_column] = '*'
+                    buttons[rand_row + 2][rand_column + 1] = '*'
+                if buttons[rand_row][rand_column - 1] == 'X' and buttons[rand_row][rand_column - 2] == 'X':
+                    buttons[rand_row - 1][rand_column - 3] = '*'
+                    buttons[rand_row][rand_column - 3] = '*'
+                    buttons[rand_row + 1][rand_column - 3] = '*'
+                    buttons[rand_row - 1][rand_column - 2] = '*'
+                    buttons[rand_row + 1][rand_column - 2] = '*'
+                    buttons[rand_row - 1][rand_column - 1] = '*'
+                    buttons[rand_row + 1][rand_column - 1] = '*'
+                    buttons[rand_row - 1][rand_column] = '*'
+                    buttons[rand_row + 1][rand_column] = '*'
+                    buttons[rand_row - 1][rand_column + 1] = '*'
+                    buttons[rand_row][rand_column + 1] = '*'
+                    buttons[rand_row + 1][rand_column + 1] = '*'
+                if buttons[rand_row][rand_column + 1] == 'X' and buttons[rand_row][rand_column + 2] == 'X':
+                    buttons[rand_row - 1][rand_column + 3] = '*'
+                    buttons[rand_row][rand_column + 3] = '*'
+                    buttons[rand_row + 1][rand_column + 3] = '*'
+                    buttons[rand_row - 1][rand_column + 2] = '*'
+                    buttons[rand_row + 1][rand_column + 2] = '*'
+                    buttons[rand_row - 1][rand_column + 1] = '*'
+                    buttons[rand_row + 1][rand_column + 1] = '*'
+                    buttons[rand_row - 1][rand_column] = '*'
+                    buttons[rand_row + 1][rand_column] = '*'
+                    buttons[rand_row - 1][rand_column - 1] = '*'
+                    buttons[rand_row][rand_column - 1] = '*'
+                    buttons[rand_row + 1][rand_column - 1] = '*'
+                if buttons[rand_row][rand_column - 1] == 'X' and buttons[rand_row][rand_column + 1] == 'X':
+                    buttons[rand_row - 1][rand_column + 2] = '*'
+                    buttons[rand_row][rand_column + 2] = '*'
+                    buttons[rand_row + 1][rand_column + 2] = '*'
+                    buttons[rand_row - 1][rand_column + 1] = '*'
+                    buttons[rand_row + 1][rand_column + 1] = '*'
+                    buttons[rand_row - 1][rand_column] = '*'
+                    buttons[rand_row + 1][rand_column] = '*'
+                    buttons[rand_row - 1][rand_column - 1] = '*'
+                    buttons[rand_row + 1][rand_column - 1] = '*'
+                    buttons[rand_row - 1][rand_column - 2] = '*'
+                    buttons[rand_row][rand_column - 2] = '*'
+                    buttons[rand_row + 1][rand_column - 2] = '*'
 
     else:
         gaming()
+
 
 
 rows = list(range(1, 9))
