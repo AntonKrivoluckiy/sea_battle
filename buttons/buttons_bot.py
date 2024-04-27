@@ -28,4 +28,3 @@ def bot_send_buttons(chat_id):
     if row_buttons_bot:
         markup_bot.row(*row_buttons_bot)
     bot.send_message(chat_id, text='[                           Игровое поле противника                         ]', reply_markup=markup_bot)
-    print(str(buttons_bot))

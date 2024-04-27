@@ -7,6 +7,9 @@ class State_rast:
 class State_game:
     game = False
 
+class preparing_state:
+    last_question = False
+
 class not_zone:
     not_ships_zone = ''
 

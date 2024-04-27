@@ -132,7 +132,7 @@ def rast_2plbship_2(call):
                     bot.delete_message(call.message.chat.id, call.message.message_id)
                     send_buttons(call.message.chat.id, 'user')
     if (str(buttons)).count('[') == 11:
-        if (buttons[row][column] != ' [ ') and (buttons[row][column] != '=') and (buttons[row][column] != ' ] '):
+        if (buttons[row][column] != '[') and (buttons[row][column] != '=') and (buttons[row][column] != ']'):
             if buttons[row][column] not in not_zone.not_ships_zone:
                 buttons[row][column] = '['
                 bot.delete_message(call.message.chat.id, call.message.message_id)

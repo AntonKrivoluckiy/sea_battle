@@ -1,7 +1,8 @@
+import telebot
+
 from buttons.buttons import buttons, send_buttons
-from buttons.buttons_bot import bot_send_buttons
 from init_bot import bot
-from states.states import State_rast, not_zone, State_game
+from states.states import State_rast, not_zone, State_game, preparing_state
 
 
 @bot.callback_query_handler(func=lambda call: State_rast.rast_1plbship)
@@ -29,11 +30,14 @@ def rast_1plbship(call):
                 bot.delete_message(call.message.chat.id, call.message.message_id)
                 send_buttons(call.message.chat.id, 'user')
         if (str(buttons)).count('[ ]') == 3:
-            bot.send_message(call.message.chat.id, text='Отлично, теперь ваш боевой флот полсностью расставлен и готов к бою!!!')
-            bot.send_message(call.message.chat.id, 'Теперь, когда вы и ваш противник готовы к бою, вы можете атаковать его флот, нажимая на его игровое поле, если вы попадете в корабль противника, то на клетке появится крест (" X "), что означает попадание или убийство корабля противника, в противном случае будет символ промаха(" * ").'
-                                                '\nПервый ход за вами.'
-                                                '\nУдачи в бою, возвращайтесь с победой!!!')
-            send_buttons(call.message.chat.id, 'user')
-            bot_send_buttons(call.message.chat.id)
+            last_question = telebot.util.quick_markup(
+                {
+                    "Нет": {'callback_data': 'No'},
+                    "Да": {'callback_data': 'Yes'}
+                }
+            )
+            bot.send_message(call.message.chat.id, 'Отлично, проверьте еще раз расстановку своих кораблей, она вас устраивает?', reply_markup=last_question)
             State_rast.rast_1plbship = False
-            State_game.game = True
+            preparing_state.last_question = True
+
+
